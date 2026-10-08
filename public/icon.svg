@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#3E33C9"/>
+  <path d="M104 184a40 40 0 0 1 40-40h196l96 112-96 112H144a40 40 0 0 1-40-40z" fill="#FFD84A" stroke="#17112F" stroke-width="16" stroke-linejoin="round" transform="rotate(-8 256 256)"/>
+  <circle cx="356" cy="236" r="18" fill="#FFFFFF" stroke="#17112F" stroke-width="12" transform="rotate(-8 256 256)"/>
+  <text x="206" y="318" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="190" text-anchor="middle" fill="#17112F" transform="rotate(-8 256 256)">$</text>
+</svg>

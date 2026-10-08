@@ -1,0 +1,2084 @@
+<title>Remarcá</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap">
+<style>
+/* Layout: one-column phone app. Look of a corner-store sale poster: fluorescent paper colors, starbursts, chunky ink outlines and hard offset shadows, prices on yellow stickers. */
+:root{
+  --bg:#F4F0FF; --card:#FFFFFF; --ink:#17112F; --ink2:#4E4672; --ink3:#857EA6; --edge:#17112F; --line:#17112F; --line2:#ECE7FB;
+  --yellow:#FFD84A; --pink:#E8508A; --blue:#3E33C9; --sky:#7FD3F2; --orange:#FFA65C; --lime:#B5E37A; --on:#17112F;
+  --t-yellow:#FFF3C2; --t-pink:#FCE1EC; --t-sky:#DDF2FB; --t-lime:#E8F6D6; --t-orange:#FFE9D6;
+  --tag:#FFD84A; --tag-ink:#17112F; --btn:#17112F; --btn-ink:#FFFFFF; --focus:#4D3BFF;
+  --up:#D9400A; --up-bg:#FFE2D1; --down:#0D8545; --down-bg:#D5F7E2; --new:#3B2BE0; --new-bg:#E2DEFF; --warn:#8F5400; --warn-bg:#FFF0B8; --bad:#D0154A; --bad-bg:#FFDDE8;
+  --bw:1.5px; --sh:3px 3px 0 var(--edge); --sh-sm:2px 2px 0 var(--edge);
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-disp:"Archivo Black","Arial Black",Impact,system-ui,sans-serif;
+  --f-num:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --r:18px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#120F22; --card:#1D1936; --ink:#F2F0FA; --ink2:#C0BAD8; --ink3:#8E88AC; --edge:#4A4275; --line:#4A4275; --line2:#2A2547;
+  --t-yellow:#3A3216; --t-pink:#3D1D2C; --t-sky:#18313D; --t-lime:#25331A; --t-orange:#3D2818;
+  --btn:#FFD84A; --btn-ink:#17112F; --focus:#9C8FFF;
+  --up:#FF925C; --up-bg:#3D1F14; --down:#5EE09A; --down-bg:#123224; --new:#A9A0FF; --new-bg:#262058; --warn:#FFD25C; --warn-bg:#3A2D0C; --bad:#FF6F98; --bad-bg:#40142A;
+  --sh:3px 3px 0 #05030D; --sh-sm:2px 2px 0 #05030D; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#120F22; --card:#1D1936; --ink:#F2F0FA; --ink2:#C0BAD8; --ink3:#8E88AC; --edge:#4A4275; --line:#4A4275; --line2:#2A2547;
+  --t-yellow:#3A3216; --t-pink:#3D1D2C; --t-sky:#18313D; --t-lime:#25331A; --t-orange:#3D2818;
+  --btn:#FFD84A; --btn-ink:#17112F; --focus:#9C8FFF;
+  --up:#FF925C; --up-bg:#3D1F14; --down:#5EE09A; --down-bg:#123224; --new:#A9A0FF; --new-bg:#262058; --warn:#FFD25C; --warn-bg:#3A2D0C; --bad:#FF6F98; --bad-bg:#40142A;
+  --sh:3px 3px 0 #05030D; --sh-sm:2px 2px 0 #05030D; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+#app{max-width:640px;margin:0 auto;min-height:100vh;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+.wrap{padding-inline:16px;padding-block:10px 24px;display:flex;flex-direction:column;gap:18px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding:12px 16px 10px;display:flex;align-items:center;gap:12px;border-bottom:var(--bw) solid transparent}
+.top.scrolled{border-bottom-color:var(--edge)}
+.top h1{margin:0;font-family:var(--f-disp);font-weight:400;font-size:21px;letter-spacing:-.01em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .back{border:var(--bw) solid var(--edge);background:var(--card);color:var(--on);width:42px;height:42px;border-radius:50%;display:grid;place-items:center;box-shadow:var(--sh-sm);flex:none}
+.top .back:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--edge)}
+.sync{font-size:12px;font-weight:600;color:var(--ink2);display:flex;align-items:center;gap:6px;white-space:nowrap;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:3px 9px}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--down);display:inline-block}
+.sync.local i{background:var(--ink3)}
+.sync.busy i{background:var(--orange);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+
+/* home hero */
+.hero{position:relative;overflow:hidden;background:var(--blue);color:#fff;padding:16px 16px 48px;border-radius:0 0 24px 24px}
+.hero .row{position:relative;z-index:2}
+.hero .hello{font-weight:700;font-size:15px;opacity:.9}
+.hero h1{margin:2px 0 0;font-family:var(--f-disp);font-weight:400;font-size:clamp(26px,7vw,34px);line-height:1;letter-spacing:-.02em;text-wrap:balance;position:relative;z-index:2}
+.hero .sync{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.5);color:#fff}
+.hero .deco{position:absolute;z-index:1;pointer-events:none}
+.hero .d1{width:120px;right:-34px;top:-34px;opacity:.95}
+.hero .d2{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.1);right:70px;bottom:-34px}
+.hero .d3{display:none}
+.hero .sticker{position:absolute;z-index:2;right:18px;bottom:16px;transform:rotate(-8deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* bottom nav */
+.nav{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30}
+.nav-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1.3fr 1fr 1fr;align-items:end;background:var(--card);border:var(--bw) solid var(--edge);border-radius:22px;box-shadow:0 6px 20px rgba(23,17,47,.12);padding:4px 4px 6px}
+.nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;font-weight:600;color:var(--ink3);padding:6px 0;border-radius:16px}
+.nav button.on{color:var(--ink);font-weight:800}
+.nav button.on svg{background:var(--t-yellow);color:var(--ink);border-radius:10px;padding:3px;width:30px!important;height:30px!important}
+.nav .fab{transform:translateY(-22px);color:var(--ink);font-weight:800}
+.nav .fab .c{width:64px;height:64px;position:relative;display:grid;place-items:center;color:var(--on);filter:drop-shadow(2px 2px 0 var(--edge))}
+.nav .fab .c svg.burst{position:absolute;inset:0;width:100%;height:100%}
+.nav .fab .c svg.i{position:relative;stroke-width:3}
+.nav .fab:active .c{transform:scale(.94)}
+svg.i{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* basics */
+.card{background:var(--card);border:var(--bw) solid var(--edge);border-radius:var(--r);box-shadow:var(--sh);padding:16px}
+.card.flat{box-shadow:none;border-style:dashed}
+h2{font-size:19px;margin:0;font-weight:800;text-wrap:balance;letter-spacing:-.01em}
+h3{font-family:var(--f-body);font-weight:800;font-size:13px;margin:0;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+p{margin:0}
+.muted{color:var(--ink2)}
+.small{font-size:14px}
+.tiny{font-size:12px;color:var(--ink3)}
+.row{display:flex;align-items:center;gap:12px}
+.row>.grow{flex:1;min-width:0}
+.stack{display:flex;flex-direction:column;gap:12px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-inline:2px}
+.sec-h h3{display:inline-flex;align-items:center;gap:8px}
+.sec-h h3::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--pink);transform:rotate(45deg)}
+.sec-h button{border:0;background:none;color:var(--ink2);font-weight:700;font-size:14px;padding:4px 0}
+.btn{border:var(--bw) solid var(--edge);border-radius:14px;padding:12px 18px;font-weight:800;font-size:16px;background:var(--btn);color:var(--btn-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;text-align:center;box-shadow:var(--sh-sm);transition:transform .08s,box-shadow .08s}
+.btn:active:not(:disabled){transform:translate(3px,3px);box-shadow:0 0 0 var(--edge)}
+.btn.block{width:100%}
+.btn.sec{background:var(--card);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);border-style:dashed;box-shadow:none}
+.btn.tagb{background:var(--yellow);color:var(--on)}
+.btn.pink{background:var(--pink);color:#fff}
+.btn.danger{background:var(--bad);color:#fff}
+.btn.sm{min-height:40px;padding:7px 12px;font-size:14px;border-radius:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btns>.btn{flex:1 1 140px}
+.link{border:0;background:none;color:var(--ink);text-decoration:underline;text-underline-offset:3px;padding:0;font-weight:700}
+
+/* forms */
+label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700;color:var(--ink2)}
+.inp{width:100%;border:var(--bw) solid var(--edge);background:var(--card);border-radius:14px;padding:11px 14px;font-size:16px;min-height:50px;font-weight:500}
+.inp:focus{outline:none;box-shadow:var(--sh-sm);background:color-mix(in srgb,var(--yellow) 14%,var(--card))}
+.inp-suf{position:relative}
+.inp-suf .inp{padding-right:40px}
+.inp-suf b{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--ink3);font-weight:700;pointer-events:none}
+.inp-pre{position:relative}
+.inp-pre .inp{padding-left:32px}
+.inp-pre b{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink3);font-weight:700;pointer-events:none;display:flex}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid2>*{min-width:0}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{border:1.5px solid var(--edge);background:var(--card);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:700;min-height:38px;white-space:nowrap}
+.seg button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0}
+.toggle input{appearance:none;width:52px;height:30px;border-radius:999px;background:var(--line2);border:2px solid var(--edge);position:relative;flex:none;cursor:pointer;transition:background .15s}
+.toggle input::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--card);border:2px solid var(--edge);transition:transform .15s}
+.toggle input:checked{background:var(--lime)}
+.toggle input:checked::after{transform:translateX(22px)}
+.chk{appearance:none;width:26px;height:26px;border-radius:8px;border:var(--bw) solid var(--edge);flex:none;display:grid;place-items:center;cursor:pointer;background:var(--card)}
+.chk:checked{background:var(--lime)}
+.chk:checked::after{content:"";width:6px;height:12px;border:solid var(--on);border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
+
+/* price tag sticker */
+.tag{display:inline-flex;align-items:baseline;gap:2px;background:var(--tag);color:var(--tag-ink);font-family:var(--f-num);font-weight:800;font-size:22px;line-height:1;padding:5px 10px 4px 8px;border:1.5px solid var(--edge);border-radius:6px 14px 14px 6px;white-space:nowrap;font-variant-numeric:tabular-nums;box-shadow:1.5px 1.5px 0 var(--edge)}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--card);border:1.5px solid var(--edge);margin-right:6px;align-self:center}
+.tag small{font-size:.62em;margin-right:1px}
+.tag.lg{font-size:32px}
+.old{font-family:var(--f-num);font-weight:700;font-size:16px;color:var(--ink3);text-decoration:line-through;text-decoration-color:var(--pink);text-decoration-thickness:2px;white-space:nowrap}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;font-size:12.5px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;border:1.5px solid currentColor}
+.chip.up{background:var(--up-bg);color:var(--up)}
+.chip.down{background:var(--down-bg);color:var(--down)}
+.chip.new{background:var(--new-bg);color:var(--new)}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.bad{background:var(--bad-bg);color:var(--bad)}
+.chip.mute{background:var(--line2);color:var(--ink2);border-color:transparent}
+
+/* lists */
+.list{background:var(--card);border:var(--bw) solid var(--edge);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.li{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line2);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left}
+.li:first-child{border-top:0}
+button.li:active,.rowbtn:active{background:var(--line2)}
+.li .grow{flex:1;min-width:0}
+.li .t,.li .s{display:block}
+.li .t{font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.li .s{font-size:13px;color:var(--ink3);margin-top:2px;overflow-wrap:anywhere}
+.li .r{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}
+.li.hl{background:var(--t-yellow);box-shadow:inset 4px 0 0 var(--yellow)}
+.rowbtn{display:flex;align-items:center;gap:12px;border:0;background:none;padding:0;text-align:left;min-width:0;color:inherit;flex:1;border-radius:10px}
+.more{display:block;width:100%;border:0;border-top:2px dashed var(--line2);background:none;padding:12px;font-weight:800;color:var(--ink2)}
+
+/* home */
+.hero-cta{position:relative;overflow:hidden;display:flex;align-items:center;gap:16px;width:100%;border:var(--bw) solid var(--edge);text-align:left;background:var(--pink);color:#fff;border-radius:22px;padding:18px;box-shadow:var(--sh);margin-top:-30px;z-index:3;transition:transform .08s,box-shadow .08s}
+.hero-cta:active{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--edge)}
+.hero-cta .ic{width:62px;height:62px;border-radius:18px;background:var(--yellow);color:var(--on);display:grid;place-items:center;flex:none;border:var(--bw) solid var(--edge)}
+.hero-cta b{display:block;font-family:var(--f-disp);font-weight:400;font-size:24px;line-height:1.05;letter-spacing:-.01em}
+.hero-cta .sub{font-size:14.5px;font-weight:600;opacity:.95}
+.hero-cta .arrow{width:38px;height:38px;border-radius:50%;background:#fff;color:var(--on);display:grid;place-items:center;border:var(--bw) solid var(--edge);flex:none}
+.hero-cta::after{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.16)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{border:var(--bw) solid var(--edge);border-radius:var(--r);padding:12px 10px;box-shadow:var(--sh-sm);min-width:0;color:var(--ink)}
+.stat{background:var(--card);border-top:6px solid var(--yellow)}
+.stat:nth-child(2){border-top-color:var(--sky)}
+.stat:nth-child(3){border-top-color:var(--lime)}
+.stat b{display:block;font-family:var(--f-disp);font-weight:400;font-size:26px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;font-weight:700}
+.alert{display:flex;gap:12px;align-items:flex-start;border-radius:var(--r);padding:14px;width:100%;border:var(--bw) solid var(--edge);text-align:left;box-shadow:var(--sh-sm)}
+.alert.bad{background:var(--bad-bg);color:var(--bad)}
+.alert.warn{background:var(--warn-bg);color:var(--warn)}
+.alert .grow{flex:1;min-width:0}
+.alert b{display:block;font-weight:800}
+.alert span{font-size:14px;font-weight:500}
+
+/* review summary */
+.sum{position:relative;background:var(--card);border:var(--bw) solid var(--edge);border-radius:24px;box-shadow:var(--sh);padding:18px 16px;overflow:hidden}
+.sum h2{font-family:var(--f-disp);font-weight:400;font-size:21px!important;line-height:1.1;letter-spacing:-.01em;max-width:80%}
+.sum .burst-badge{position:absolute;right:-8px;top:-8px;width:86px;height:86px;display:grid;place-items:center;color:var(--on);transform:rotate(8deg)}
+.sum .burst-badge svg{position:absolute;inset:0;width:100%;height:100%}
+.sum .burst-badge span{position:relative;font-family:var(--f-disp);font-size:13px;line-height:1;text-align:center}
+.sum .burst-badge span b{display:block;font-size:24px}
+.sum-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.sum-nums button{border:var(--bw) solid var(--edge);border-radius:14px;padding:10px 10px 8px;text-align:left;color:var(--ink);border-left-width:6px}
+.sum-nums b{display:block;font-family:var(--f-disp);font-weight:400;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.sum-nums span{font-size:13px;font-weight:800}
+.sum-nums .up{background:var(--t-orange);border-left-color:var(--orange)}
+.sum-nums .down{background:var(--t-lime);border-left-color:var(--lime)}
+.sum-nums .new{background:var(--t-sky);border-left-color:var(--sky)}
+.sum-nums button.on{outline:2px solid var(--ink);outline-offset:2px}
+.applybar{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30}
+.applybar>div{max-width:600px;margin:0 auto;display:flex;gap:10px;align-items:center;background:var(--card);border:var(--bw) solid var(--edge);border-radius:22px;box-shadow:var(--sh);padding:10px 10px 10px 16px}
+.doubt{border:var(--bw) dashed var(--orange);background:var(--card);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px}
+.doubt .src{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:var(--line2);padding:6px 8px;border-radius:8px;overflow-wrap:anywhere}
+
+/* sheet */
+#sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+#sheet[hidden],[hidden]{display:none!important}
+#sheet .bg{position:absolute;inset:0;background:rgba(17,12,38,.55)}
+#sheet .pane{position:relative;background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow:auto;border:var(--bw) solid var(--edge);border-bottom:0;border-radius:28px 28px 0 0;padding:8px 16px calc(20px + env(safe-area-inset-bottom,0px));animation:up .22s cubic-bezier(.2,1.3,.4,1)}
+#sheet .grab{width:44px;height:6px;border-radius:3px;background:var(--ink3);margin:4px auto 12px}
+#sheet .pane-h{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+#sheet .pane-h h2{flex:1;font-family:var(--f-disp);font-weight:400;font-size:21px}
+#sheet .x{border:var(--bw) solid var(--edge);background:var(--card);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;box-shadow:var(--sh-sm)}
+@keyframes up{from{transform:translateY(60px);opacity:.3}}
+
+/* toast */
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(112px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-direction:column;gap:8px;width:min(92vw,520px);pointer-events:none}
+.toast{background:var(--ink);color:var(--bg);border:var(--bw) solid var(--edge);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.2);pointer-events:auto;animation:up .22s cubic-bezier(.2,1.3,.4,1);font-size:15px;font-weight:600}
+.toast .grow{flex:1}
+.toast button{border:2px solid var(--edge);background:var(--yellow);color:var(--on);border-radius:10px;padding:6px 10px;font-weight:800}
+
+/* processing */
+.proc{display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;padding-block:30px 20px}
+.scan{width:130px;height:160px;border-radius:14px;background:var(--card);border:var(--bw) solid var(--edge);box-shadow:var(--sh);position:relative;overflow:hidden;padding:18px 14px;display:flex;flex-direction:column;gap:9px}
+.scan i{height:7px;border-radius:4px;background:var(--line2);display:block}
+.scan i:nth-child(odd){width:78%}
+.scan i:nth-child(3n){background:color-mix(in srgb,var(--sky) 45%,var(--line2))}
+.scan::after{content:"";position:absolute;left:0;right:0;height:30px;background:linear-gradient(180deg,transparent,rgba(255,225,53,.85),transparent);animation:scan 1.5s ease-in-out infinite}
+@keyframes scan{0%{top:-30px}100%{top:160px}}
+.bar{width:100%;max-width:320px;height:16px;border-radius:999px;background:var(--card);border:var(--bw) solid var(--edge);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pink);transition:width .3s}
+@keyframes stripes{to{background-position:28px 0}}
+.steps{display:flex;flex-direction:column;gap:8px;text-align:left;width:100%;max-width:320px}
+.steps div{display:flex;gap:10px;align-items:center;font-size:15px;font-weight:600;color:var(--ink3)}
+.steps div.on{color:var(--ink);font-weight:800}
+.steps div.ok{color:var(--down)}
+.thumbs{display:flex;gap:12px;flex-wrap:wrap}
+.thumbs figure{margin:0;width:88px;height:116px;border-radius:12px;overflow:hidden;position:relative;background:var(--line2);border:var(--bw) solid var(--edge);box-shadow:var(--sh-sm)}
+.thumbs img{width:100%;height:100%;object-fit:cover}
+.thumbs figure button{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:2px solid var(--edge);background:var(--pink);color:#fff;font-weight:800;line-height:1}
+.src-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.src-btn{border:var(--bw) solid var(--edge);background:var(--card);border-radius:20px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:8px;min-height:120px;box-shadow:var(--sh-sm);transition:transform .08s,box-shadow .08s}
+.src-btn:active:not(:disabled){transform:translate(3px,3px);box-shadow:none}
+.src-btn b{font-size:17px;font-weight:800}
+.src-btn span{font-size:13px;color:var(--ink2)}
+.src-btn .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;flex:none;border:2px solid var(--edge);color:var(--on)}
+.src-btn:nth-child(2) .ic{background:var(--t-sky);color:var(--ink)}
+.src-btn:nth-child(3) .ic{background:var(--t-lime);color:var(--ink)}
+.src-btn:nth-child(4) .ic{background:var(--t-orange);color:var(--ink)}
+.src-btn:nth-child(5) .ic{background:var(--t-pink);color:var(--ink)}
+.src-btn.main{grid-column:1/-1;background:var(--blue);color:#fff;flex-direction:row;align-items:center;min-height:92px;box-shadow:var(--sh)}
+.src-btn.main span{color:inherit;opacity:.9}
+.src-btn.main .ic{background:var(--yellow);width:54px;height:54px}
+.src-btn:disabled{opacity:.5;box-shadow:none}
+.sup-pick{display:flex;flex-direction:column;gap:10px}
+.sup-pick button{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;border:var(--bw) solid var(--edge);background:var(--card);text-align:left;width:100%;box-shadow:var(--sh-sm)}
+.sup-pick button:active{transform:translate(3px,3px);box-shadow:none}
+.avatar{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-family:var(--f-disp);font-size:19px;flex:none;color:var(--on);border:2px solid var(--edge);background:var(--yellow)}
+.avatar.c1{background:var(--pink);color:#fff;border-radius:50%}
+.avatar.c2{background:var(--sky)}
+.avatar.c3{background:var(--lime)}
+.avatar.c4{background:var(--orange)}
+
+/* onboarding */
+.onb{padding-inline:16px;padding-block:0 40px;display:flex;flex-direction:column;gap:22px;max-width:520px;margin:0 auto}
+.onb-hero{position:relative;overflow:hidden;margin-inline:-16px;padding:28px 20px 34px;background:var(--blue);color:#fff;border-radius:0 0 28px 28px}
+.onb-hero h2{position:relative;z-index:2;font-family:var(--f-disp);font-weight:400;font-size:clamp(28px,8vw,38px);line-height:1;letter-spacing:-.02em;margin-top:18px;max-width:10ch}
+.onb-hero p{position:relative;z-index:2;margin-top:12px;font-size:16px;font-weight:500;max-width:25ch;opacity:.95}
+.onb-hero .deco{position:absolute;pointer-events:none;z-index:1}
+.onb-hero .t1{right:18px;top:92px;transform:rotate(-5deg);font-size:22px}
+.onb-hero .t2{display:none;right:18px;bottom:22px;transform:rotate(-7deg);font-size:22px;background:var(--pink);color:#fff}
+.onb-hero .b1{width:130px;right:-44px;top:-44px}
+.onb-hero .c1{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.1);right:110px;bottom:-30px}
+.brand{display:flex;align-items:center;gap:10px;position:relative;z-index:2}
+.brand .tag{font-size:26px}
+.logo{font-family:var(--f-disp);font-size:22px;letter-spacing:-.01em}
+.demo-note{background:var(--t-yellow);color:var(--ink);border:var(--bw) solid var(--edge);border-radius:16px;padding:10px 12px;font-size:14px;font-weight:700;display:flex;gap:10px;align-items:center;box-shadow:var(--sh-sm)}
+.demo-note .grow{flex:1}
+
+.search{position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:10;background:var(--bg);padding-block:4px 10px;display:flex;flex-direction:column;gap:10px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips.seg{flex-wrap:nowrap;margin-inline:-16px;padding-inline:16px}
+.chips button{flex:none}
+#q{padding-left:42px}
+.empty{text-align:center;padding:28px 16px;color:var(--ink2);display:flex;flex-direction:column;gap:12px;align-items:center;font-weight:600}
+.done-hero{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;padding-block:26px 8px}
+.done-hero h2{font-family:var(--f-disp);font-weight:400;font-size:26px!important;line-height:1.05;letter-spacing:-.02em}
+.done-hero .ok{width:100px;height:100px;position:relative;display:grid;place-items:center;color:var(--on);animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+.done-hero .ok svg.burst{position:absolute;inset:0;width:100%;height:100%}
+.done-hero .ok svg.i{position:relative;width:50px;height:50px;stroke-width:3.5}
+@keyframes pop{from{transform:scale(.3) rotate(-30deg);opacity:0}}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+.tbl-wrap{overflow-x:auto;border:var(--bw) solid var(--edge);border-radius:14px;background:var(--card)}
+table.prev{border-collapse:collapse;font-size:13px;min-width:100%}
+table.prev td,table.prev th{padding:6px 8px;border-bottom:1px solid var(--line2);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis;text-align:left}
+table.prev th{background:var(--yellow);color:var(--on);font-weight:800}
+.warnbox{background:var(--warn-bg);color:var(--warn);border:2px solid currentColor;border-radius:16px;padding:12px 14px;font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:8px}
+.errbox{background:var(--bad-bg);color:var(--bad);border:2px solid currentColor;border-radius:16px;padding:12px 14px;font-size:15px;font-weight:600}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:2px dashed var(--line2);font-size:15px}
+.kv:last-child{border-bottom:0}
+.kv b{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:380px){.stat b{font-size:23px}.sum-nums b{font-size:28px}.hero-cta b{font-size:23px}}
+</style>
+<div id="app"></div>
+<div id="sheet" hidden></div>
+<div id="toast" aria-live="polite"></div>
+<script>
+'use strict';
+/* ============ utilidades ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const newId = () => Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-5);
+const NF0 = new Intl.NumberFormat('es-AR', {maximumFractionDigits: 0});
+const NF2 = new Intl.NumberFormat('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const NF1 = new Intl.NumberFormat('es-AR', {maximumFractionDigits: 1});
+const r2 = v => Math.round(v * 100) / 100;
+function priceTxt(v){ if (v == null || !isFinite(v)) return '—'; const step = +(S.settings?.round) || 0; return (step >= 1 || Number.isInteger(v)) ? NF0.format(Math.round(v)) : NF2.format(v); }
+function moneyHTML(v, cls=''){ return `<span class="tag ${cls}"><small>$</small>${priceTxt(v)}</span>`; }
+const costTxt = v => (v == null || !isFinite(v)) ? '—' : '$ ' + NF2.format(v);
+const pctTxt = v => (v > 0 ? '+' : v < 0 ? '−' : '') + NF1.format(Math.abs(v)) + ' %';
+function fmtDate(ts){ if(!ts) return '—'; const d = new Date(ts); return d.toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit', year:'2-digit'}); }
+function ago(ts){
+  if (!ts) return 'nunca';
+  const d = Math.floor((Date.now() - ts) / 86400000);
+  if (d <= 0){ const h = Math.floor((Date.now()-ts)/3600000); return h <= 0 ? 'recién' : `hace ${h} h`; }
+  if (d === 1) return 'ayer';
+  if (d < 30) return `hace ${d} días`;
+  const m = Math.floor(d/30); return m === 1 ? 'hace 1 mes' : `hace ${m} meses`;
+}
+/* números en formato argentino o internacional */
+function parseNum(v){
+  if (typeof v === 'number') return isFinite(v) ? v : NaN;
+  let s = String(v ?? '').trim();
+  if (!s) return NaN;
+  s = s.replace(/[$\s]|ars|u\$s|usd/gi, '').replace(/[^\d.,-]/g, '');
+  if (!/\d/.test(s)) return NaN;
+  const lc = s.lastIndexOf(','), ld = s.lastIndexOf('.');
+  if (lc > -1 && ld > -1){
+    if (lc > ld) s = s.replace(/\./g, '').replace(',', '.'); else s = s.replace(/,/g, '');
+  } else if (lc > -1){
+    const dec = s.length - lc - 1;
+    s = (dec === 3 && (s.match(/,/g)||[]).length >= 1 && s.length > 4 && !/^0,/.test(s)) ? s.replace(/,/g, '') : s.replace(/,/g, (m, i) => i === lc ? '.' : '');
+    if ((s.match(/\./g)||[]).length > 1) s = s.replace(/\./g, '');
+  } else if (ld > -1){
+    const parts = s.split('.');
+    if (parts.length > 2) s = s.replace(/\./g, '');
+    else if (parts[1].length === 3 && parts[0].length >= 1 && parts[0] !== '0') s = s.replace('.', '');
+  }
+  const n = parseFloat(s);
+  return isFinite(n) ? n : NaN;
+}
+
+/* ============ estado y guardado ============ */
+const SECTIONS = ['settings', 'suppliers', 'products', 'maps', 'history'];
+const LS = 'remarca.v1.';
+const S = {settings: null, suppliers: [], products: [], maps: {}, history: []};
+const TS = {};
+const persist = {mode: 'local', col: null, meta: {}, timers: {}, queue: Promise.resolve(), pending: 0, ready: false, error: null};
+
+function lsGet(k){ try { return JSON.parse(localStorage.getItem(LS + k) || 'null'); } catch { return null; } }
+function lsSet(k, v){ try { localStorage.setItem(LS + k, JSON.stringify(v)); return true; } catch { return false; } }
+function loadLocal(){
+  for (const k of SECTIONS){
+    const v = lsGet(k);
+    if (v && v.d !== undefined){ S[k] = v.d; TS[k] = v.ts || 0; }
+  }
+  if (!Array.isArray(S.suppliers)) S.suppliers = [];
+  if (!Array.isArray(S.products)) S.products = [];
+  if (!Array.isArray(S.history)) S.history = [];
+  if (!S.maps || typeof S.maps !== 'object') S.maps = {};
+}
+function save(...secs){
+  for (const k of secs){
+    TS[k] = Date.now();
+    lsSet(k, {ts: TS[k], d: S[k]});
+    if (k === 'products') invalidateIndex();
+    if (persist.mode === 'cloud'){
+      clearTimeout(persist.timers[k]);
+      persist.timers[k] = setTimeout(() => queueCloud(k), 900);
+      persist.pending++; persist.timers['_'+k] = (persist.timers['_'+k]||0) + 1;
+    }
+  }
+  updateSync();
+}
+function queueCloud(k){
+  const n = persist.timers['_'+k] || 0; persist.timers['_'+k] = 0;
+  persist.queue = persist.queue.then(() => cloudWrite(k)).catch(e => cloudFail(e)).finally(() => { persist.pending = Math.max(0, persist.pending - n); updateSync(); });
+}
+const CHUNK = 80000;
+async function cloudWrite(k){
+  const json = JSON.stringify(S[k]);
+  const ts = TS[k] || Date.now();
+  const n = Math.max(1, Math.ceil(json.length / CHUNK));
+  for (let i = 0; i < n; i++) await persist.col.doc(k + '_' + i).set({s: json.slice(i * CHUNK, (i + 1) * CHUNK)});
+  await persist.col.doc(k + '_meta').set({n, ts});
+  const prev = persist.meta[k]?.n || 0;
+  for (let i = n; i < prev; i++) await persist.col.doc(k + '_' + i).delete().catch(() => {});
+  persist.meta[k] = {n, ts};
+}
+function cloudFail(e){
+  const c = e?.code;
+  if (c === 'invalid_argument' || c === 'revoked' || c === 'not_granted'){
+    persist.mode = 'local'; persist.error = 'Tus datos se guardan solo en este dispositivo.';
+  } else if (c === 'quota_exceeded'){
+    toast('Se llenó el espacio en la nube. Tus datos siguen guardados en este dispositivo.');
+  }
+}
+async function initCloud(){
+  try {
+    const [db, user] = await Promise.all([capUse('db'), capUse('user')]);
+    if (!db || !user) return;
+    const uid = await user.id().catch(() => null);
+    if (!uid) return;
+    const col = db.doc('data/users/' + uid + '/remarca').collection('chunks');
+    const snap = await col.limit(1000).get();
+    const docs = {}; for (const d of snap.docs) docs[d.id] = d.data();
+    persist.col = col; persist.mode = 'cloud';
+    const toPush = [];
+    for (const k of SECTIONS){
+      const m = docs[k + '_meta'];
+      let cloud = null;
+      if (m && m.n){
+        try { let s = ''; for (let i = 0; i < m.n; i++) s += docs[k + '_' + i]?.s ?? ''; cloud = JSON.parse(s); } catch { cloud = null; }
+        persist.meta[k] = {n: m.n, ts: m.ts};
+      }
+      if (cloud !== null && (m.ts || 0) >= (TS[k] || 0)){
+        S[k] = cloud; TS[k] = m.ts; lsSet(k, {ts: m.ts, d: cloud});
+      } else if (TS[k] && S[k] != null){ toPush.push(k); }
+    }
+    invalidateIndex();
+    for (const k of toPush){ persist.pending++; persist.timers['_'+k] = 1; queueCloud(k); }
+  } catch (e) {
+    persist.mode = 'local';
+  }
+}
+
+/* capacidades del visor */
+function capUse(name){
+  try { return (window.claude && window.claude.use) ? Promise.resolve(window.claude.use(name)).catch(() => null) : Promise.resolve(null); }
+  catch { return Promise.resolve(null); }
+}
+const AI = {s: null, limits: null, off: false, checked: false};
+async function initAI(){
+  const s = await capUse('sample');
+  if (s){ AI.s = s; try { AI.limits = await s.limits(); } catch { AI.limits = null; } }
+  AI.checked = true;
+}
+const aiOn = () => !!AI.s && !AI.off;
+const aiImagesOn = () => aiOn() && !!AI.limits?.images;
+
+/* ============ precios ============ */
+const DEFAULT_SETTINGS = () => ({store: '', margin: 40, iva: 21, round: 10, roundMode: 'up', ending: '', bigChange: 20, categories: [], createdAt: Date.now(), demo: false});
+const supById = id => S.suppliers.find(s => s.id === id);
+let _byId = null;
+function byId(id){ if (!_byId){ _byId = new Map(S.products.map(p => [p.id, p])); } return _byId.get(id); }
+function catOf(name){ return (S.settings.categories || []).find(c => c.name === name); }
+const hasVal = v => v !== null && v !== undefined && v !== '' && isFinite(+v);
+function marginFor(p){
+  if (p && hasVal(p.margin)) return +p.margin;
+  const c = p && catOf(p.category); if (c && hasVal(c.margin)) return +c.margin;
+  return +S.settings.margin || 0;
+}
+function ivaFor(cat){ const c = catOf(cat); return c && hasVal(c.iva) ? +c.iva : (+S.settings.iva || 0); }
+function roundPrice(v){
+  const end = S.settings.ending;
+  if (end === '9') return Math.ceil((v + 1) / 10 - 1e-9) * 10 - 1;
+  if (end === '90') return Math.ceil((v + 10) / 100 - 1e-9) * 100 - 10;
+  if (end === '99') return Math.ceil((v + 1) / 100 - 1e-9) * 100 - 1;
+  const step = +S.settings.round || 0;
+  if (!step) return r2(v);
+  const q = v / step;
+  return (S.settings.roundMode === 'near' ? Math.round(q) : Math.ceil(q - 1e-9)) * step;
+}
+const priceFrom = (cost, p) => roundPrice(cost * (1 + marginFor(p) / 100));
+/* costo que paga el comercio por unidad: lista → +IVA si corresponde → −bonificación */
+/* cuántas unidades de venta trae el precio de lista (bulto x 12 → 12; kilo vendido por 100 g → 10) */
+function packOf(p){
+  if (!p) return 1;
+  const b = p.buy || {};
+  let n = b.type === 'pack' ? (+b.n || 1) : 1;
+  if (b.type === 'kg' && p.sell === '100g') n = 10;
+  return n > 0 ? n : 1;
+}
+const UNIT_TXT = {u: '', kg: 'por kg', '100g': 'x 100 g'};
+const unitTxt = p => UNIT_TXT[p?.sell || 'u'] || '';
+function pushHist(p, ts){ p.hist = (p.hist || []).concat([[ts, p.cost, p.price]]).slice(-12); }
+function costFromList(listed, sup, cat, ivaOverride, pack = 1){
+  let c = +listed / (pack > 0 ? pack : 1);
+  const inc = ivaOverride ?? !!sup.ivaIncluded;
+  if (!inc) c *= 1 + ivaFor(cat) / 100;
+  if (+sup.discount) c *= 1 - (+sup.discount) / 100;
+  return r2(c);
+}
+const isLoss = p => p.cost > 0 && p.price > 0 && p.price < p.cost - 0.005;
+const realMargin = p => p.cost > 0 ? (p.price / p.cost - 1) * 100 : null;
+
+/* ============ vinculación con el catálogo ============ */
+const STOP = new Set(['de','del','la','el','los','las','con','sin','en','y','p','x','por','para','a','al','e']);
+function norm(s){
+  s = String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  s = s.replace(/(\d),(\d)/g, '$1.$2');
+  s = s.replace(/(\d+(?:\.\d+)?)\s*(kgs?|kilos?|kilogramos?|k)\b/g, '$1kg')
+       .replace(/(\d+(?:\.\d+)?)\s*(grs?|gramos?|gms?|g)\b/g, '$1g')
+       .replace(/(\d+(?:\.\d+)?)\s*(cc|ml|cm3|mililitros?)\b/g, '$1ml')
+       .replace(/(\d+(?:\.\d+)?)\s*(lts?|litros?|l)\b/g, '$1l')
+       .replace(/(\d+)\s*(unidades|unid|uds?|un|u)\b/g, '$1u');
+  s = s.replace(/\b(\d+(?:\.\d+)?)g\b/g, (m, n) => (+n >= 1000 && +n % 1000 === 0) ? (+n / 1000) + 'kg' : m)
+       .replace(/\b(\d+(?:\.\d+)?)ml\b/g, (m, n) => (+n >= 1000 && +n % 1000 === 0) ? (+n / 1000) + 'l' : m)
+       .replace(/\b0\.(\d+)kg\b/g, (m, n) => Math.round(parseFloat('0.' + n) * 1000) + 'g')
+       .replace(/\b0\.(\d+)l\b/g, (m, n) => Math.round(parseFloat('0.' + n) * 1000) + 'ml');
+  s = s.replace(/[^a-z0-9.]+/g, ' ').replace(/(^|[^0-9])\.|\.(?![0-9])/g, '$1 ');
+  return s.replace(/\s+/g, ' ').trim();
+}
+function prep(text){
+  const n = norm(text);
+  const toks = n.split(' ').filter(t => t && !STOP.has(t));
+  const tok = new Set(toks);
+  const joined = ' ' + toks.join(' ') + ' ';
+  const tri = new Set(); for (let i = 0; i < joined.length - 2; i++) tri.add(joined.slice(i, i + 3));
+  const nums = new Set(toks.filter(t => /\d/.test(t)));
+  return {n, tok, tri, nums};
+}
+function dice(a, b){ if (!a.size || !b.size) return 0; let i = 0; const [s, l] = a.size < b.size ? [a, b] : [b, a]; for (const x of s) if (l.has(x)) i++; return 2 * i / (a.size + b.size); }
+function sim(a, b){
+  if (a.n && a.n === b.n) return 1;
+  let s = 0.55 * dice(a.tok, b.tok) + 0.45 * dice(a.tri, b.tri);
+  if (a.nums.size && b.nums.size){ let shared = false; for (const x of a.nums) if (b.nums.has(x)) { shared = true; break; } if (!shared) s *= 0.45; }
+  else if (a.nums.size !== b.nums.size && (a.nums.size || b.nums.size)) s *= 0.9;
+  return s;
+}
+let _idx = null;
+function invalidateIndex(){ _idx = null; _byId = null; }
+function getIndex(){
+  if (_idx) return _idx;
+  const inv = new Map(); const pre = new Map(); const byCode = new Map();
+  for (const p of S.products){
+    const pr = prep(p.name); pre.set(p.id, pr);
+    for (const t of pr.tok){ if (!inv.has(t)) inv.set(t, []); inv.get(t).push(p.id); }
+    if (p.code) byCode.set(normCode(p.code), p);
+  }
+  _idx = {inv, pre, byCode};
+  return _idx;
+}
+const normCode = c => String(c || '').trim().toLowerCase().replace(/^0+(?=\d)/, '').replace(/\s+/g, '');
+function itemKey(code, desc){ return code ? 'c:' + normCode(code) : 'd:' + norm(desc); }
+function candidates(desc, supId, n = 5){
+  const idx = getIndex(); const q = prep(desc);
+  const seen = new Set(); const out = [];
+  const total = S.products.length || 1;
+  for (const t of q.tok){
+    const ids = idx.inv.get(t); if (!ids) continue;
+    if (ids.length > Math.max(60, total * 0.35) && q.tok.size > 1) continue;
+    for (const id of ids){ if (seen.has(id)) continue; seen.add(id);
+      const p = byId(id); const pp = idx.pre.get(id); let sc = sim(q, pp);
+      // una palabra distintiva del renglón (marca, variedad) que el producto no tiene: probablemente es otro producto
+      if (sc < 1){
+        let miss = false;
+        for (const t of q.tok){ if (/\d/.test(t) || pp.tok.has(t)) continue; const df = idx.inv.get(t)?.length || 0; if (df >= 1 && df <= 3){ sc *= 0.7; miss = true; } }
+        // y además el producto tiene otra marca o variedad propia: casi seguro que no es
+        if (miss) for (const t of pp.tok){ if (/\d/.test(t) || q.tok.has(t)) continue; const df = idx.inv.get(t)?.length || 0; if (df >= 1 && df <= 3){ sc *= 0.6; break; } }
+      }
+      if (p && supId && p.supplierId === supId) sc = Math.min(1, sc + 0.03);
+      out.push({id, score: sc});
+    }
+  }
+  out.sort((a, b) => b.score - a.score);
+  return out.slice(0, n);
+}
+function matchItems(raw, sup){
+  const maps = S.maps[sup.id] || {};
+  const idx = getIndex();
+  return raw.map(r => {
+    const key = itemKey(r.code, r.desc);
+    const it = {key, code: r.code || '', desc: r.desc, listed: r.cost, productId: null, match: null, score: 0, cands: [], include: true, doubt: false, ignored: false, override: null, newCat: '', note: r.note || '', aiPack: r.pack > 1 ? r.pack : 1, pack: null};
+    const m = maps[key];
+    if (m === '-'){ it.ignored = true; it.include = false; it.match = 'ignorado'; return it; }
+    if (m && byId(m)){ it.productId = m; it.match = 'memoria'; return it; }
+    if (r.code){
+      const p = idx.byCode.get(normCode(r.code));
+      if (p && (!p.supplierId || p.supplierId === sup.id)){ it.productId = p.id; it.match = 'codigo'; return it; }
+    }
+    const c = candidates(r.desc, sup.id);
+    it.cands = c.map(x => x.id);
+    const b = c[0], s2 = c[1]?.score ?? 0;
+    if (b){
+      it.score = b.score;
+      if (b.score >= 0.97 && s2 < 0.97){ it.productId = b.id; it.match = 'exacto'; }
+      else if (b.score >= 0.84 && s2 < b.score - 0.06){ it.productId = b.id; it.match = 'similar'; }
+      else if (b.score >= 0.42){ it.doubt = true; it.include = false; it.suggest = b.id; }
+    }
+    return it;
+  });
+}
+
+/* ============ lectura de archivos ============ */
+const LIBS = {
+  xlsx: ['https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'],
+  jspdf: ['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'],
+  pdf: ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js']
+};
+const _libs = {};
+function loadLib(name){
+  if (_libs[name]) return _libs[name];
+  _libs[name] = LIBS[name].reduce((p, src) => p.then(() => new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src; s.onload = res;
+    s.onerror = () => { delete _libs[name]; rej(new UserErr('No se pudo cargar una herramienta necesaria. Revisá tu conexión y probá de nuevo.')); };
+    document.head.appendChild(s);
+  })), Promise.resolve());
+  return _libs[name];
+}
+class UserErr extends Error {}
+
+async function readSheetRows(file){
+  await loadLib('xlsx');
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, {type: 'array', cellDates: false});
+  let best = null;
+  for (const n of wb.SheetNames){
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[n], {header: 1, raw: true, defval: ''});
+    const filled = rows.filter(r => r.some(c => String(c).trim() !== ''));
+    if (!best || filled.length > best.length) best = filled;
+  }
+  return (best || []).map(r => r.map(c => typeof c === 'string' ? c.trim() : c));
+}
+const KW = {
+  code: /^(cod|c[oó]d(igo)?|sku|art(\.|[ií]culo)?\s*(n|nro|#)?|ean|ref|item|id|plu)\b/i,
+  desc: /(desc|producto|art[ií]culo|detalle|nombre|item|mercader)/i,
+  cost: /(costo|precio|p\.?\s?unit|unitario|lista|neto|importe|valor|\$|pcio|final)/i,
+  cat: /(rubro|categor|familia|secci[oó]n|grupo|l[ií]nea)/i,
+  price: /(venta|p\.?\s?v\.?p|p[uú]blico|pvp|precio\s*sug)/i,
+  sup: /(proveedor|marca|distrib)/i
+};
+function guessCols(rows, forCatalog){
+  let hdr = -1, best = 0;
+  for (let i = 0; i < Math.min(rows.length, 20); i++){
+    const r = rows[i]; let sc = 0;
+    for (const c of r){ const s = String(c); if (typeof c === 'string' && s.length < 40 && (KW.desc.test(s) || KW.cost.test(s) || KW.code.test(s) || KW.cat.test(s))) sc++; }
+    if (sc > best){ best = sc; hdr = i; }
+  }
+  const H = hdr >= 0 ? rows[hdr].map(String) : [];
+  const data = rows.slice(hdr + 1, hdr + 60);
+  const ncol = Math.max(...rows.slice(0, 60).map(r => r.length), 0);
+  const numRatio = j => { let n = 0, t = 0; for (const r of data){ const v = r[j]; if (v === '' || v == null) continue; t++; if (isFinite(parseNum(v)) && parseNum(v) > 0) n++; } return t ? n / t : 0; };
+  const textLen = j => { let L = 0, t = 0; for (const r of data){ const v = r[j]; if (typeof v === 'string' && /[a-záéíóúñ]/i.test(v)){ L += v.length; t++; } } return t ? L / Math.max(1, data.length) : 0; };
+  const find = (re, not) => { for (let j = 0; j < H.length; j++) if (re.test(H[j]) && !(not && not.some(x => x === j))) return j; return -1; };
+  const cols = {header: hdr, code: -1, desc: -1, cost: -1, cat: -1, price: -1};
+  cols.code = find(KW.code);
+  cols.desc = find(KW.desc, [cols.code]);
+  if (forCatalog){ cols.price = find(KW.price); cols.cat = find(KW.cat); }
+  const costCands = []; for (let j = 0; j < H.length; j++) if (KW.cost.test(H[j]) && j !== cols.price && j !== cols.code && j !== cols.desc) costCands.push(j);
+  const pref = costCands.find(j => /(costo|neto|s\/?\s?iva|sin iva|contado)/i.test(H[j]));
+  cols.cost = pref ?? costCands.find(j => numRatio(j) > 0.6) ?? -1;
+  if (forCatalog && cols.price === -1 && cols.cost !== -1 && costCands.length === 1 && !/costo|neto/i.test(H[cols.cost])){ cols.price = cols.cost; cols.cost = -1; }
+  if (cols.desc === -1){ let bj = -1, bl = 0; for (let j = 0; j < ncol; j++){ if (j === cols.code) continue; const l = textLen(j); if (l > bl){ bl = l; bj = j; } } cols.desc = bj; }
+  if (cols.cost === -1 && !forCatalog){ for (let j = ncol - 1; j >= 0; j--){ if (j === cols.code || j === cols.desc) continue; if (numRatio(j) > 0.7){ cols.cost = j; break; } } }
+  return cols;
+}
+function rowsToItems(rows, cols){
+  const out = [];
+  for (let i = cols.header + 1; i < rows.length; i++){
+    const r = rows[i];
+    const desc = String(r[cols.desc] ?? '').trim();
+    const cost = parseNum(r[cols.cost]);
+    if (!desc || !/[a-záéíóúñ]/i.test(desc) || !(cost > 0)) continue;
+    out.push({code: cols.code >= 0 ? String(r[cols.code] ?? '').trim() : '', desc, cost});
+  }
+  return out;
+}
+async function readPdf(file, onProg){
+  await loadLib('pdf');
+  const pdf = await pdfjsLib.getDocument({data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false}).promise;
+  const pages = Math.min(pdf.numPages, 30);
+  const lines = []; let chars = 0;
+  for (let p = 1; p <= pages; p++){
+    onProg?.(`Leyendo página ${p} de ${pages}`, p / pages * 0.3);
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+    const rows = [];
+    for (const it of tc.items){
+      if (!it.str || !it.str.trim()) continue;
+      const y = it.transform[5], x = it.transform[4];
+      let row = rows.find(r => Math.abs(r.y - y) < 3);
+      if (!row){ row = {y, parts: []}; rows.push(row); }
+      row.parts.push({x, s: it.str, w: it.width || 0});
+    }
+    rows.sort((a, b) => b.y - a.y);
+    for (const r of rows){
+      r.parts.sort((a, b) => a.x - b.x);
+      let line = '', lastEnd = null;
+      for (const pt of r.parts){ if (lastEnd !== null) line += (pt.x - lastEnd > 12 ? '  |  ' : ' '); line += pt.s.trim(); lastEnd = pt.x + pt.w; }
+      lines.push(line); chars += line.length;
+    }
+  }
+  if (chars > 40 * pages) return {lines};
+  const imgs = [];
+  for (let p = 1; p <= Math.min(pages, 10); p++){
+    onProg?.(`Preparando página ${p} para leerla`, 0.3);
+    const page = await pdf.getPage(p);
+    const vp0 = page.getViewport({scale: 1});
+    const vp = page.getViewport({scale: Math.min(2.5, 1800 / Math.max(vp0.width, vp0.height))});
+    const cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
+    const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+    await page.render({canvasContext: ctx, viewport: vp}).promise;
+    imgs.push(await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.85)));
+  }
+  return {images: imgs, scanned: true};
+}
+async function shrinkImage(file){
+  let src;
+  try { src = await createImageBitmap(file); }
+  catch {
+    src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new UserErr('No se pudo abrir la imagen. Probá con otra foto.')); im.src = URL.createObjectURL(file); });
+  }
+  const w = src.width, h = src.height, k = Math.min(1, 2000 / Math.max(w, h));
+  const cv = document.createElement('canvas'); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+  const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(src, 0, 0, cv.width, cv.height);
+  return new Promise(res => cv.toBlob(res, 'image/jpeg', 0.85));
+}
+/* lectura sin IA: última cifra con forma de precio en cada renglón */
+function heuristicLines(lines){
+  const out = [];
+  const priceRe = /\$?\s?\d{1,3}(?:[.\s]\d{3})+(?:,\d{1,2})?|\$?\s?\d+(?:[.,]\d{1,2})?/g;
+  for (let raw of lines){
+    const line = String(raw).replace(/\s*\|\s*/g, '   ').trim();
+    if (!/[a-záéíóúñ]{3,}/i.test(line)) continue;
+    const ms = [...line.matchAll(priceRe)];
+    if (!ms.length) continue;
+    const last = ms[ms.length - 1];
+    const cost = parseNum(last[0]);
+    if (!(cost > 0)) continue;
+    let rest = (line.slice(0, last.index) + ' ' + line.slice(last.index + last[0].length)).trim();
+    let code = '';
+    const cm = rest.match(/^([A-Z0-9][A-Z0-9\-\/.]{1,11})\s+(?=\S)/i);
+    if (cm && /\d/.test(cm[1])){ code = cm[1]; rest = rest.slice(cm[0].length); }
+    rest = rest.replace(/\s+\$?\s*$/, '').replace(/\s{2,}/g, ' ').trim();
+    if (rest.length < 3) continue;
+    const pm = rest.match(/\b(?:caja|bulto|pack|display|cj|bto)\s*(?:x|de)?\s*(\d{1,3})\s*(?:u|un|unid|unidades)?\b/i);
+    out.push({code, desc: rest, cost, pack: pm ? Math.max(1, +pm[1]) : 1});
+  }
+  return out;
+}
+
+/* ============ IA ============ */
+function aiErrMsg(e){
+  const c = e?.code;
+  if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(c)){ AI.off = true; return 'La lectura con IA no está habilitada en este acceso. Podés subir la lista en Excel o pegarla como texto.'; }
+  if (c === 'rate_limited') return 'Se alcanzó el límite de uso de la IA por ahora. Probá de nuevo en unos minutos.';
+  if (c === 'session_expired') return 'Tu sesión venció. Volvé a iniciar sesión y probá otra vez.';
+  if (c === 'image_rejected') return 'No se pudo leer la imagen. Probá con otra foto, más nítida y con buena luz.';
+  if (c === 'images_unavailable'){ return 'La lectura de fotos no está disponible en este acceso. Subí la lista en PDF, Excel o como texto.'; }
+  if (c === 'prompt_too_large') return 'La lista es demasiado larga para leerla de una vez. Probá dividirla en partes.';
+  if (c === 'cancelled') return 'cancelled';
+  if (c === 'refused' || c === 'invalid_json' || c === 'empty_completion') return 'La IA no pudo interpretar esta parte de la lista.';
+  return 'Hubo un problema de conexión con la IA. Probá de nuevo.';
+}
+function extractPrompt(sup, what){
+  const hint = sup.aiHint ? `\nPara este proveedor ya sabemos: "${sup.aiHint}". Respetalo salvo que la lista diga claramente otra cosa.` : '';
+  return `Sos un asistente que lee listas de precios de proveedores mayoristas para un comercio minorista de Argentina.
+${what}
+Extraé CADA producto con su precio de costo unitario.
+Reglas:
+- Los números suelen estar en formato argentino: "1.234,56" es 1234.56 y "12.500" es 12500. Devolvé el número como número JSON con punto decimal.
+- Si hay varias columnas de precio (por ejemplo "s/IVA" y "c/IVA", "contado" y "lista", "bulto" y "unidad"), usá el precio unitario. Entre sin IVA y con IVA, preferí SIN IVA si existe.
+- La descripción debe incluir marca, variedad y presentación (peso, volumen, unidades) tal como aparece.
+- Incluí el código del proveedor si existe; si no, usá "".
+- Ignorá encabezados, subtotales, totales, teléfonos, condiciones de venta y renglones sin precio.
+- No inventes productos ni precios. Si un precio no se lee con seguridad, omití ese producto.${hint}
+Respondé SOLO con JSON con esta forma exacta:
+{"iva":"incluido"|"no_incluido"|"no_dice","columna":"breve descripción de qué columna de precio usaste","items":[["código","descripción",1234.56,1]]}
+El cuarto valor de cada ítem es cuántas unidades de venta incluye ese precio: 1 si es precio por unidad o por kilo; si el único precio es por bulto, caja, pack o display (por ejemplo "caja x 12", "pack x 6", "x24u"), poné esa cantidad.`;
+}
+function cleanAiItems(res){
+  const arr = Array.isArray(res) ? res : (res && Array.isArray(res.items) ? res.items : []);
+  const out = [];
+  for (const x of arr){
+    let code = '', desc = '', cost = NaN, pack = 1;
+    if (Array.isArray(x)){ [code, desc, cost, pack] = x.length >= 3 ? x : ['', x[0], x[1], 1]; }
+    else if (x && typeof x === 'object'){ code = x.codigo ?? x.code ?? ''; desc = x.descripcion ?? x.desc ?? x.nombre ?? ''; cost = x.precio ?? x.costo ?? x.cost; pack = x.unidades ?? 1; }
+    pack = Math.round(+pack); if (!(pack >= 1 && pack <= 1000)) pack = 1;
+    cost = parseNum(cost); desc = String(desc ?? '').trim(); code = String(code ?? '').trim();
+    if (desc && cost > 0) out.push({code, desc, cost, pack});
+  }
+  return out;
+}
+async function aiExtractImages(blobs, sup, signal, onProg){
+  const items = []; const warn = []; let meta = {};
+  const max = AI.limits?.images?.maxCount || 1;
+  for (let i = 0; i < blobs.length; i++){
+    onProg?.(`Leyendo ${blobs.length > 1 ? `página ${i + 1} de ${blobs.length}` : 'la lista'} con IA`, 0.35 + 0.45 * (i / blobs.length));
+    try {
+      const res = await AI.s.json(extractPrompt(sup, `Te paso la foto de una página de la lista de precios del proveedor "${sup.name}".`), {images: [blobs[i]].slice(0, max), signal, modelTier: 'default'});
+      items.push(...cleanAiItems(res));
+      if (res && !Array.isArray(res)) meta = {iva: res.iva || meta.iva, columna: res.columna || meta.columna};
+    } catch (e) {
+      const m = aiErrMsg(e);
+      if (m === 'cancelled') throw e;
+      if (AI.off || e?.code === 'rate_limited' || e?.code === 'session_expired' || e?.code === 'images_unavailable') throw new UserErr(m);
+      warn.push(`${blobs.length > 1 ? `Página ${i + 1}: ` : ''}${m}`);
+    }
+  }
+  return {items, warn, meta};
+}
+async function aiExtractText(lines, sup, signal, onProg){
+  const items = []; const warn = []; let meta = {};
+  const clean = lines.map(l => String(l).trim()).filter(l => l && /\d/.test(l));
+  const chunks = []; let cur = [], size = 0;
+  for (const l of clean){ cur.push(l); size += l.length; if (cur.length >= 140 || size > 9000){ chunks.push(cur); cur = []; size = 0; } }
+  if (cur.length) chunks.push(cur);
+  for (let i = 0; i < chunks.length; i++){
+    onProg?.(`Interpretando la lista con IA${chunks.length > 1 ? ` (parte ${i + 1} de ${chunks.length})` : ''}`, 0.35 + 0.45 * (i / chunks.length));
+    try {
+      const res = await AI.s.json(extractPrompt(sup, `Este es el texto de ${chunks.length > 1 ? `la parte ${i + 1} de ${chunks.length} de ` : ''}la lista de precios del proveedor "${sup.name}" (las columnas pueden venir separadas por "|" o espacios):\n"""\n${chunks[i].join('\n')}\n"""`), {signal, modelTier: 'default'});
+      items.push(...cleanAiItems(res));
+      if (res && !Array.isArray(res)) meta = {iva: res.iva || meta.iva, columna: res.columna || meta.columna};
+    } catch (e) {
+      const m = aiErrMsg(e);
+      if (m === 'cancelled') throw e;
+      if (AI.off || e?.code === 'rate_limited' || e?.code === 'session_expired'){
+        if (!items.length){ const h = heuristicLines(clean); if (h.length){ warn.push(m + ' Leímos la lista sin IA; revisá los resultados.'); return {items: h, warn, meta}; } }
+        throw new UserErr(m);
+      }
+      const h = heuristicLines(chunks[i]);
+      items.push(...h);
+      warn.push(`${chunks.length > 1 ? `Parte ${i + 1}: ` : ''}${m} Se leyó sin IA; revisala.`);
+    }
+  }
+  return {items, warn, meta};
+}
+async function aiDetectCols(rows, sup, signal){
+  const sample = rows.slice(0, 25).map((r, i) => i + '\t' + r.map(c => String(c).slice(0, 40)).join('\t')).join('\n');
+  const res = await AI.s.json(`Estas son las primeras filas de una planilla con la lista de precios del proveedor "${sup.name}" de un comercio argentino. Cada fila empieza con su número y las columnas están separadas por tabulaciones (la primera columna de datos es la 0).
+${sup.aiHint ? `Para este proveedor ya sabemos: "${sup.aiHint}".\n` : ''}
+"""
+${sample}
+"""
+Indicá qué columna tiene cada dato. "costo" es el precio unitario que paga el comercio (preferí sin IVA si hay dos). Usá -1 si no existe.
+Respondé SOLO JSON: {"fila_encabezado":número o -1,"codigo":n,"descripcion":n,"costo":n,"iva":"incluido"|"no_incluido"|"no_dice","columna":"nombre de la columna de costo"}`, {signal, modelTier: 'quick'});
+  const c = {header: Number.isInteger(res?.fila_encabezado) ? res.fila_encabezado : -1, code: +res?.codigo, desc: +res?.descripcion, cost: +res?.costo};
+  if (!(c.desc >= 0) || !(c.cost >= 0)) return null;
+  if (!(c.code >= 0)) c.code = -1;
+  return {cols: c, meta: {iva: res.iva, columna: res.columna}};
+}
+async function aiResolveDoubts(items, signal, onProg){
+  const batches = []; for (let i = 0; i < items.length; i += 25) batches.push(items.slice(i, i + 25));
+  let done = 0;
+  for (const b of batches){
+    onProg?.(`Confirmando coincidencias dudosas con IA (${Math.min(done + b.length, items.length)} de ${items.length})`, 0.85 + 0.12 * (done / items.length));
+    const payload = b.map((it, i) => ({i, lista: it.desc, opciones: it.cands.slice(0, 5).map(id => ({id, n: byId(id)?.name}))}));
+    try {
+      const res = await AI.s.json(`Un comercio recibió la lista de un proveedor. Para cada renglón de la lista, decidí cuál producto del catálogo del comercio es EXACTAMENTE el mismo producto: misma marca, misma variedad y misma presentación (peso, volumen o cantidad). Las abreviaturas son comunes ("YERBA PLAY 1K" = "Yerba Playadito 1 kg"). Si ninguno es el mismo, respondé null. Ante la duda entre tamaños o variedades distintas, respondé null.
+${JSON.stringify(payload)}
+Respondé SOLO JSON: un array de pares [i, "id elegido" o null], por ejemplo [[0,"abc"],[1,null]].`, {signal, modelTier: 'quick'});
+      if (Array.isArray(res)) for (const pair of res){
+        if (!Array.isArray(pair)) continue;
+        const it = b[pair[0]]; if (!it) continue;
+        const id = pair[1];
+        it.aiChecked = true;
+        if (id && it.cands.includes(id)){ it.productId = id; it.doubt = false; it.include = true; it.match = 'ia'; }
+        else if (id === null){ it.doubt = false; it.include = S.products.length < 10; it.match = null; it.productId = null; it.aiNew = true; }
+      }
+    } catch (e) {
+      if (e?.code === 'cancelled') throw e;
+      break;
+    }
+    done += b.length;
+  }
+}
+/* ============ íconos ============ */
+const I = {
+  home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  tag:'<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  truck:'<path d="M2 6h11v10H2zM13 9h4.5L21 12.5V16h-8z"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  camera:'<path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/>',
+  file:'<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+  sheet:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>',
+  text:'<path d="M4 6h16M4 12h16M4 18h10"/>',
+  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>',
+  back:'<path d="M15 18 9 12l6-6"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  alert:'<path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  dl:'<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
+  up:'<path d="M12 19V5M5 12l7-7 7 7"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'
+};
+/* estrella de cartel de oferta */
+function burst(fill, pts = 14, inner = 0.8, extra = ''){
+  const P = []; for (let i = 0; i < pts * 2; i++){ const a = Math.PI * i / pts - Math.PI / 2, r = i % 2 ? 46 * inner : 46; P.push((50 + r * Math.cos(a)).toFixed(1) + ',' + (50 + r * Math.sin(a)).toFixed(1)); }
+  return `<svg class="burst ${extra}" viewBox="0 0 100 100" aria-hidden="true"><polygon points="${P.join(' ')}" fill="${fill}" stroke="var(--edge)" stroke-width="3" stroke-linejoin="round"/></svg>`;
+}
+function avatar(name){ let h = 0; for (const ch of String(name || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return `<span class="avatar c${h % 5}">${esc((String(name || '?')[0] || '?').toUpperCase())}</span>`; }
+const ic = (n, s = 24) => `<svg class="i" viewBox="0 0 24 24" style="width:${s}px;height:${s}px" aria-hidden="true">${I[n]}</svg>`;
+
+/* ============ estado de interfaz ============ */
+const ui = {tab: 'home', screen: null, sheet: null, q: '', filter: 'all', plimit: 150, select: false, selected: new Set(), nl: null, proc: null, review: null, imp: null, doneId: null, wipe: false, leave: false};
+const boot = {loading: true};
+
+function go(tab){ ui.tab = tab; ui.screen = null; ui.select = false; ui.sheet = null; render(); window.scrollTo(0, 0); }
+function screen(name){ ui.screen = name; ui.sheet = null; render(); window.scrollTo(0, 0); }
+
+function syncHTML(){
+  if (persist.mode === 'cloud') return persist.pending ? `<span class="sync busy" id="sync"><i></i>Guardando…</span>` : `<span class="sync" id="sync"><i></i>Guardado en tu cuenta</span>`;
+  return `<span class="sync local" id="sync" title="${esc(persist.error || '')}"><i></i>En este dispositivo</span>`;
+}
+function updateSync(){ const el = $('#sync'); if (el) el.outerHTML = syncHTML(); }
+function topbar(title, back){ return `<header class="top">${back ? `<button class="back" data-a="${back}" aria-label="Volver">${ic('back')}</button>` : ''}<h1>${esc(title)}</h1>${syncHTML()}</header>`; }
+function navHTML(){
+  const b = (t, icon, label) => `<button class="${ui.tab === t ? 'on' : ''}" data-a="tab" data-v="${t}">${ic(icon)}<span>${label}</span></button>`;
+  return `<nav class="nav"><div class="nav-in">${b('home', 'home', 'Inicio')}${b('prices', 'tag', 'Precios')}<button class="fab" data-a="newlist"><span class="c">${burst('var(--yellow)', 12, 0.78)}${ic('plus', 30)}</span><span>Nueva lista</span></button>${b('suppliers', 'truck', 'Proveedores')}${b('settings', 'gear', 'Ajustes')}</div></nav>`;
+}
+
+/* ============ render ============ */
+function render(){
+  const app = $('#app');
+  if (boot.loading){ app.innerHTML = `<div class="proc"><div class="brand"><span class="tag lg"><small>$</small>Remarcá</span></div><p class="muted">Cargando tus precios…</p></div>`; return; }
+  if (!S.settings){ app.innerHTML = viewOnboard(); renderSheet(); return; }
+  let html = '';
+  if (ui.screen) html = (SCREENS[ui.screen] || (() => ''))();
+  else html = (TABS[ui.tab] || TABS.home)() + navHTML();
+  app.innerHTML = html;
+  renderSheet();
+}
+
+/* ---------- onboarding ---------- */
+function viewOnboard(){
+  return `<div class="onb">
+    <header class="onb-hero"><span class="deco b1">${burst('var(--yellow)', 16, 0.82)}</span><span class="deco c1"></span>
+      <span class="deco tag t1"><small>$</small>1.299</span><span class="deco tag t2"><small>$</small>890</span>
+      <div class="brand"><span class="logo">Remarcá</span></div>
+      <h2>Tus precios al día, en un toque.</h2>
+      <p>Sacale una foto a la lista del proveedor. Remarcá lee los costos, aplica tu margen y te muestra solo lo que cambió.</p>
+    </header>
+    <div class="card stack">
+      <label class="f" for="ob-store">Nombre del comercio<input class="inp" id="ob-store" autocomplete="organization" placeholder="Ej.: Almacén Don Tito"></label>
+      <div class="f"><label class="f" for="ob-margin">Margen habitual de ganancia sobre el costo</label>
+        <div class="inp-suf"><input class="inp num" id="ob-margin" inputmode="decimal" value="40"><b>%</b></div>
+        <div class="seg" style="margin-top:8px">${[30, 35, 40, 50, 60].map(v => `<button type="button" data-a="obMargin" data-v="${v}">${v} %</button>`).join('')}</div>
+      </div>
+      <div class="f"><span>Redondear precios de venta</span>
+        <div class="seg" id="ob-round">${[[0, 'Sin redondeo'], [1, '$ 1'], [10, '$ 10'], [50, '$ 50'], [100, '$ 100']].map(([v, l]) => `<button type="button" class="${v === 10 ? 'on' : ''}" data-a="obRound" data-v="${v}">${l}</button>`).join('')}</div>
+        <span class="tiny">Siempre hacia arriba. Lo podés cambiar después en Ajustes.</span>
+      </div>
+      <button class="btn pink block" data-a="obStart">Empezar</button>
+    </div>
+    <div class="card flat stack">
+      <p><b>¿Querés verla funcionando primero?</b></p>
+      <p class="muted small">Cargamos un almacén de ejemplo con 27 productos y dos proveedores. Después lo borrás con un toque.</p>
+      <button class="btn sec block" data-a="demo">Probar con datos de ejemplo</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- inicio ---------- */
+function viewHome(){
+  const st = S.settings;
+  const losses = S.products.filter(isLoss).length;
+  const stale = S.suppliers.filter(s => s.lastListAt && Date.now() - s.lastListAt > 30 * 86400000);
+  const lastAt = S.products.reduce((m, p) => Math.max(m, p.priceAt || 0), 0);
+  const hora = new Date().getHours();
+  const saludo = hora < 13 ? 'Buen día' : hora < 20 ? 'Buenas tardes' : 'Buenas noches';
+  let h = `<header class="hero"><span class="deco d1">${burst('var(--yellow)', 16, 0.82)}</span><span class="deco d2"></span><span class="deco d3"></span>
+    <div class="row"><span class="grow hello">${saludo}</span>${syncHTML()}</div>
+    <h1>${esc(st.store || 'Mi comercio')}</h1></header><main class="wrap">`;
+  h += `<button class="hero-cta" data-a="newlist"><span class="ic">${ic('camera', 30)}</span><span class="grow"><b>Nueva lista</b><span class="sub">Foto, PDF o Excel del proveedor</span></span><span class="arrow">${ic('up', 20).replace('<svg', '<svg style="transform:rotate(90deg)"')}</span></button>`;
+  if (st.demo) h += `<div class="demo-note">${ic('alert', 20)}<span class="grow">Estás viendo datos de ejemplo.</span><button class="btn sm sec" data-a="wipeDemo">Borrar ejemplo</button></div>`;
+  if (st.demo && !S.history.length) h += `<div class="card stack"><p><b>Probá el flujo completo</b></p><p class="muted small">Llegó la lista nueva de Distribuidora del Sur. Leela, revisá los cambios y aplicalos.</p><button class="btn tagb block" data-a="demoList">Usar la lista de ejemplo</button></div>`;
+  if (!S.products.length) h += `<div class="card stack"><h2>Cargá tu catálogo</h2><p class="muted small">Podés importar el Excel que ya usás, cargar productos a mano o crearlo directamente desde la primera lista de un proveedor.</p>
+    <div class="btns"><button class="btn sec" data-a="importCat">${ic('sheet', 20)}Importar Excel</button><button class="btn sec" data-a="newProduct">${ic('plus', 20)}Cargar a mano</button></div>
+    <button class="btn tagb block" data-a="newlist">Crear desde la primera lista</button></div>`;
+  if (losses) h += `<button class="alert bad" data-a="seeLoss">${ic('alert')}<span class="grow"><b>${losses} ${losses === 1 ? 'producto se vende' : 'productos se venden'} por debajo del costo</b><span>Tocá para verlos y corregirlos.</span></span></button>`;
+  for (const s of stale.slice(0, 2)) h += `<button class="alert warn" data-a="newlistSup" data-id="${s.id}">${ic('clock')}<span class="grow"><b>${esc(s.name)}: última lista ${ago(s.lastListAt)}</b><span>Si te mandó una nueva, cargala para no perder margen.</span></span></button>`;
+  h += `<div class="stats"><div class="stat"><b>${NF0.format(S.products.length)}</b><span>productos</span></div><div class="stat"><b>${S.suppliers.length}</b><span>proveedores</span></div><div class="stat"><b style="font-size:17px;line-height:1.5">${lastAt ? ago(lastAt) : '—'}</b><span>última actualización</span></div></div>`;
+  if (S.history.length){
+    h += `<div class="sec-h"><h3>Últimas listas</h3></div><div class="list">`;
+    for (const b of S.history.slice(0, 8)){
+      h += `<button class="li" data-a="batch" data-id="${b.id}">${avatar(b.supName)}<span class="grow"><span class="t">${esc(b.supName)}</span><span class="s">${fmtDate(b.at)} · ${batchLine(b)}</span></span><span class="r">${b.undone ? '<span class="chip mute">Deshecha</span>' : `<span class="chip mute">${b.changes.length} cambios</span>`}</span></button>`;
+    }
+    h += `</div>`;
+  }
+  return h + `</main>`;
+}
+function batchLine(b){
+  if (b.source === 'recalculo') return 'Recálculo con márgenes';
+  const c = b.counts || {}; const p = [];
+  if (c.up) p.push(`subieron ${c.up}`); if (c.down) p.push(`bajaron ${c.down}`); if (c.new) p.push(`${c.new} nuevos`);
+  return p.join(', ') || 'sin cambios';
+}
+
+/* ---------- precios ---------- */
+function filteredProducts(){
+  const qs = norm(ui.q).split(' ').filter(Boolean);
+  let arr = S.products;
+  if (ui.filter === 'loss') arr = arr.filter(isLoss);
+  else if (ui.filter.startsWith('cat:')) arr = arr.filter(p => (p.category || '') === ui.filter.slice(4));
+  else if (ui.filter.startsWith('sup:')) arr = arr.filter(p => p.supplierId === ui.filter.slice(4));
+  if (qs.length) arr = arr.filter(p => { const h = norm(`${p.name} ${p.code} ${p.category}`); return qs.every(q => h.includes(q)); });
+  return arr.slice().sort((a, b) => a.name.localeCompare(b.name, 'es'));
+}
+function productRow(p){
+  const sup = supById(p.supplierId);
+  const m = realMargin(p);
+  const sub = [p.category, sup?.name, p.code && `cód. ${p.code}`].filter(Boolean).map(esc).join(' · ');
+  const chk = ui.select ? `<input type="checkbox" class="chk" data-a="selToggle" data-id="${p.id}" ${ui.selected.has(p.id) ? 'checked' : ''} aria-label="Elegir ${esc(p.name)}">` : '';
+  return `<div class="li">${chk}<button class="grow rowbtn" data-a="${ui.select ? 'selToggleRow' : 'product'}" data-id="${p.id}"><span class="grow"><span class="t">${esc(p.name)}</span><span class="s">${sub || 'Sin categoría'}</span></span><span class="r">${moneyHTML(p.price)}${unitTxt(p) || p.lock ? `<span class="tiny">${[unitTxt(p), p.lock ? 'precio fijo' : ''].filter(Boolean).join(' · ')}</span>` : ''}<span class="tiny num">${p.cost ? `costo ${costTxt(p.cost)}` : 'sin costo'}${m != null ? ` · ${isLoss(p) ? `<b style="color:var(--bad)">${pctTxt(m)}</b>` : NF0.format(m) + ' %'}` : ''}</span></span></button></div>`;
+}
+function priceListHTML(){
+  const arr = filteredProducts();
+  if (!S.products.length) return `<div class="empty"><p>Todavía no hay productos.</p><div class="btns"><button class="btn sec" data-a="importCat">Importar Excel</button><button class="btn sec" data-a="newProduct">Cargar a mano</button></div></div>`;
+  if (!arr.length) return `<div class="empty"><p>No hay productos que coincidan con la búsqueda.</p></div>`;
+  return `<p class="tiny" style="padding-inline:2px">${NF0.format(arr.length)} ${arr.length === 1 ? 'producto' : 'productos'}</p><div class="list">${arr.slice(0, ui.plimit).map(productRow).join('')}${arr.length > ui.plimit ? `<button class="more" data-a="moreP">Mostrar ${Math.min(150, arr.length - ui.plimit)} más</button>` : ''}</div>`;
+}
+function viewPrices(){
+  const losses = S.products.filter(isLoss).length;
+  const cats = [...new Set(S.products.map(p => p.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  const chip = (v, l) => `<button class="${ui.filter === v ? 'on' : ''}" data-a="pfilter" data-v="${esc(v)}">${l}</button>`;
+  let h = topbar('Precios') + `<main class="wrap" style="padding-top:0">
+    <div class="search">
+      <div class="inp-pre"><input class="inp" id="q" type="search" placeholder="Buscar producto, código o categoría" value="${esc(ui.q)}" autocomplete="off"><b>${ic('search', 18)}</b></div>
+      <div class="chips seg">${chip('all', 'Todos')}${losses ? chip('loss', `A pérdida (${losses})`) : ''}${cats.map(c => chip('cat:' + c, esc(c))).join('')}${S.suppliers.map(s => chip('sup:' + s.id, esc(s.name))).join('')}</div>
+    </div>
+    <div class="btns">${ui.select ? `<button class="btn sm sec" data-a="selAll">Elegir todos los de la lista</button><button class="btn sm sec" data-a="selCancel">Cancelar</button>` : `<button class="btn sm sec" data-a="newProduct">${ic('plus', 18)}Producto</button><button class="btn sm sec" data-a="selStart">${ic('tag', 18)}Etiquetas</button><button class="btn sm sec" data-a="exportPrices">${ic('dl', 18)}Excel</button><button class="btn sm sec" data-a="importCat">${ic('sheet', 18)}Importar</button>`}</div>
+    <div id="plist" class="stack">${priceListHTML()}</div>
+  </main>`;
+  if (ui.select) h += `<div class="applybar"><div><span class="grow muted">${ui.selected.size} elegidos</span><button class="btn tagb" data-a="selLabels" ${ui.selected.size ? '' : 'disabled'}>${ic('tag', 20)}Hacer etiquetas</button></div></div>`;
+  return h;
+}
+
+/* ---------- proveedores ---------- */
+function viewSuppliers(){
+  let h = topbar('Proveedores') + `<main class="wrap">`;
+  if (!S.suppliers.length) h += `<div class="empty"><p>Agregá a tus proveedores para que Remarcá aprenda cómo es la lista de cada uno.</p></div>`;
+  else {
+    h += `<div class="list">`;
+    for (const s of S.suppliers){
+      const n = S.products.filter(p => p.supplierId === s.id).length;
+      const learned = Object.keys(S.maps[s.id] || {}).length;
+      h += `<button class="li" data-a="supplier" data-id="${s.id}">${avatar(s.name)}<span class="grow"><span class="t">${esc(s.name)}</span><span class="s">${s.ivaIncluded ? 'Lista con IVA' : 'Lista sin IVA'}${+s.discount ? ` · bonificación ${NF1.format(s.discount)} %` : ''}</span><span class="s">${n} productos · ${learned} renglones aprendidos · última lista ${ago(s.lastListAt)}</span></span></button>`;
+    }
+    h += `</div>`;
+  }
+  h += `<button class="btn sec block" data-a="newSupplier">${ic('plus', 20)}Agregar proveedor</button></main>`;
+  return h;
+}
+
+/* ---------- ajustes ---------- */
+function viewSettings(){
+  const st = S.settings;
+  const pending = S.products.filter(p => p.cost > 0 && !p.lock && Math.abs(priceFrom(p.cost, p) - p.price) > 0.004).length;
+  const segR = [[0, 'Sin redondeo'], [1, '$ 1'], [10, '$ 10'], [50, '$ 50'], [100, '$ 100']].map(([v, l]) => `<button class="${+st.round === v ? 'on' : ''}" data-a="setRound" data-v="${v}">${l}</button>`).join('');
+  let h = topbar('Ajustes') + `<main class="wrap">
+  <div class="card stack">
+    <label class="f" for="s-store">Nombre del comercio<input class="inp" id="s-store" data-set="store" value="${esc(st.store)}"></label>
+    <div class="grid2">
+      <label class="f" for="s-margin">Margen general<div class="inp-suf"><input class="inp num" id="s-margin" data-set="margin" inputmode="decimal" value="${esc(st.margin)}"><b>%</b></div></label>
+      <label class="f" for="s-iva">IVA general<div class="inp-suf"><input class="inp num" id="s-iva" data-set="iva" inputmode="decimal" value="${esc(st.iva)}"><b>%</b></div></label>
+    </div>
+    <p class="tiny">El IVA se suma al costo solo cuando la lista del proveedor viene sin IVA.</p>
+    <div class="f"><span>Redondeo del precio de venta</span><div class="seg">${segR}</div>
+      <div class="seg" style="margin-top:4px"><button class="${st.roundMode !== 'near' ? 'on' : ''}" data-a="setRoundMode" data-v="up">Siempre hacia arriba</button><button class="${st.roundMode === 'near' ? 'on' : ''}" data-a="setRoundMode" data-v="near">Al más cercano</button></div></div>
+    <div class="f"><span>Terminación del precio</span><div class="seg">${[['', 'Normal'], ['9', 'Termina en 9 ($ 1.299)'], ['90', 'Termina en 90 ($ 1.290)'], ['99', 'Termina en 99 ($ 1.399)']].map(([v, l]) => `<button class="${(st.ending || '') === v ? 'on' : ''}" data-a="setEnding" data-v="${v}">${l}</button>`).join('')}</div>
+      ${st.ending ? '<span class="tiny">Con terminación elegida, el redondeo de arriba no se usa.</span>' : ''}</div>
+    <label class="f" for="s-big">Resaltar cambios mayores a<div class="inp-suf"><input class="inp num" id="s-big" data-set="bigChange" inputmode="decimal" value="${esc(st.bigChange)}"><b>%</b></div></label>
+    ${pending ? `<div class="warnbox"><span>${pending} ${pending === 1 ? 'producto tiene' : 'productos tienen'} un precio distinto al que da tu margen actual.</span><button class="btn sm" data-a="recalc">Recalcular ${pending} precios</button></div>` : ''}
+  </div>
+  <div class="sec-h"><h3>Márgenes por categoría</h3></div>
+  <div class="card stack">
+    <p class="tiny">Si una categoría no tiene margen propio, usa el general (${NF1.format(st.margin)} %). Podés poner un IVA distinto, por ejemplo 10,5 %.</p>
+    ${(st.categories || []).map((c, i) => `<div class="row" style="flex-wrap:wrap"><b class="grow" style="min-width:120px">${esc(c.name)}</b>
+      <div class="inp-suf" style="width:96px"><input class="inp num" data-cat="${i}" data-k="margin" inputmode="decimal" placeholder="${esc(st.margin)}" value="${esc(c.margin ?? '')}" aria-label="Margen de ${esc(c.name)}"><b>%</b></div>
+      <div class="inp-suf" style="width:96px"><input class="inp num" data-cat="${i}" data-k="iva" inputmode="decimal" placeholder="IVA" value="${esc(c.iva ?? '')}" aria-label="IVA de ${esc(c.name)}"><b>%</b></div>
+      <button class="back" style="width:36px;height:36px;border:0;background:var(--line2);border-radius:50%" data-a="delCat" data-i="${i}" aria-label="Quitar ${esc(c.name)}">${ic('x', 18)}</button></div>`).join('') || '<p class="muted small">Todavía no hay categorías.</p>'}
+    <div class="row"><input class="inp grow" id="newcat" placeholder="Nueva categoría"><button class="btn sm" data-a="addCat">Agregar</button></div>
+  </div>
+  <div class="sec-h"><h3>Tus datos</h3></div>
+  <div class="card stack">
+    <p class="small muted">${persist.mode === 'cloud' ? 'Tus datos se guardan en tu cuenta y los ves desde cualquier dispositivo.' : (persist.error || 'Tus datos se guardan en este dispositivo. Abrí Remarcá con tu cuenta para guardarlos en la nube.')}</p>
+    <div class="btns"><button class="btn sm sec" data-a="backup">${ic('dl', 18)}Descargar copia</button><button class="btn sm sec" data-a="restore">Restaurar copia</button></div>
+    ${ui.wipe ? `<div class="errbox stack"><b>¿Borrar todos los datos?</b><span class="small">Se borran productos, proveedores, márgenes e historial. No se puede deshacer.</span><div class="btns"><button class="btn sm danger" data-a="wipeYes">Sí, borrar todo</button><button class="btn sm sec" data-a="wipeNo">Cancelar</button></div></div>` : `<button class="btn sm ghost" data-a="wipe">Borrar todos los datos</button>`}
+  </div>
+  <p class="tiny" style="text-align:center">Remarcá · versión MVP</p>
+  </main>`;
+  return h;
+}
+const TABS = {home: viewHome, prices: viewPrices, suppliers: viewSuppliers, settings: viewSettings};
+
+/* ---------- nueva lista ---------- */
+function viewNewList(){
+  const nl = ui.nl;
+  const sup = nl.supId && supById(nl.supId);
+  let h = topbar('Nueva lista', 'nlBack') + `<main class="wrap">`;
+  if (!sup){
+    h += `<h2>¿De qué proveedor es la lista?</h2><div class="sup-pick">`;
+    const sorted = S.suppliers.slice().sort((a, b) => (b.lastListAt || 0) - (a.lastListAt || 0));
+    for (const s of sorted) h += `<button data-a="nlSup" data-id="${s.id}">${avatar(s.name)}<span class="grow"><b>${esc(s.name)}</b><br><span class="tiny">Última lista ${ago(s.lastListAt)} · ${s.ivaIncluded ? 'con IVA' : 'sin IVA'}</span></span></button>`;
+    h += `</div><div class="card stack"><b>${S.suppliers.length ? 'Otro proveedor' : 'Agregá el proveedor'}</b>
+      <input class="inp" id="nl-name" placeholder="Nombre del proveedor" autocomplete="off">
+      <label class="toggle small"><span>Los precios de su lista <b>incluyen IVA</b></span><input type="checkbox" id="nl-iva"></label>
+      <button class="btn block" data-a="nlNewSup">Continuar</button></div>`;
+    return h + `</main>`;
+  }
+  h += `<div class="row">${avatar(sup.name)}<span class="grow"><b>${esc(sup.name)}</b><br><span class="tiny">${sup.ivaIncluded ? 'Precios con IVA' : 'Precios sin IVA'}${+sup.discount ? ` · bonificación ${NF1.format(sup.discount)} %` : ''}</span></span><button class="btn sm sec" data-a="nlChangeSup">Cambiar</button></div>`;
+  if (nl.photos.length){
+    h += `<h2>Páginas de la lista</h2><div class="thumbs">${nl.photos.map((p, i) => `<figure><img src="${p.url}" alt="Página ${i + 1}"><button data-a="nlDelPhoto" data-i="${i}" aria-label="Quitar página ${i + 1}">×</button></figure>`).join('')}</div>
+      <div class="btns"><button class="btn sec" data-a="nlPhoto">${ic('camera', 20)}Otra página</button><button class="btn tagb" data-a="nlReadPhotos">Leer lista</button></div>`;
+    return h + `</main>`;
+  }
+  if (nl.mode === 'text'){
+    h += `<label class="f" for="nl-text">Pegá la lista (por ejemplo, el mensaje de WhatsApp del proveedor)<textarea class="inp" id="nl-text" rows="12" placeholder="YERBA PLAYADITO 1KG  3.950&#10;AZUCAR LEDESMA 1KG  990&#10;…">${esc(nl.text || '')}</textarea></label>
+      <div class="btns"><button class="btn sec" data-a="nlMode" data-v="">Volver</button><button class="btn tagb" data-a="nlReadText">Leer lista</button></div>`;
+    return h + `</main>`;
+  }
+  const imgOk = aiImagesOn();
+  h += `<div class="src-grid">
+    <button class="src-btn main" data-a="nlPhoto" ${imgOk ? '' : 'disabled'}><span class="ic">${ic('camera', 26)}</span><span class="grow"><b>Sacar foto</b><br><span>De la lista en papel. Podés sumar varias páginas.</span></span></button>
+    <button class="src-btn" data-a="nlPdf"><span class="ic">${ic('file')}</span><b>PDF</b><span>La lista que te mandaron por mail o WhatsApp</span></button>
+    <button class="src-btn" data-a="nlSheet"><span class="ic">${ic('sheet')}</span><b>Excel o CSV</b><span>Planilla del proveedor</span></button>
+    <button class="src-btn" data-a="nlGallery" ${imgOk ? '' : 'disabled'}><span class="ic">${ic('image')}</span><b>Fotos guardadas</b><span>Capturas o fotos de la galería</span></button>
+    <button class="src-btn" data-a="nlMode" data-v="text"><span class="ic">${ic('text')}</span><b>Pegar texto</b><span>Copiado de un mensaje o mail</span></button>
+  </div>`;
+  if (!AI.checked) h += `<p class="tiny">Preparando la lectura con IA…</p>`;
+  else if (!aiOn()) h += `<div class="warnbox">La lectura con IA no está disponible en este acceso. Podés usar Excel, PDF con texto o pegar la lista; Remarcá la lee igual, con menos precisión.</div>`;
+  else if (!imgOk) h += `<p class="tiny">La lectura de fotos no está disponible en este acceso. Usá PDF, Excel o texto.</p>`;
+  return h + `</main>`;
+}
+
+/* ---------- procesando ---------- */
+function viewProcessing(){
+  const p = ui.proc; const sup = supById(p.supId);
+  let h = topbar('Leyendo la lista', p.error || p.needCols ? 'procBack' : '') + `<main class="wrap">`;
+  if (p.needCols){
+    const {rows, cols} = p.needCols;
+    const ncol = Math.max(...rows.slice(0, 30).map(r => r.length));
+    const hdr = cols.header >= 0 ? rows[cols.header] : [];
+    const L = j => `Columna ${String.fromCharCode(65 + (j % 26))}${hdr[j] ? ': ' + String(hdr[j]).slice(0, 24) : ''}`;
+    const sel = (id, label, val, opt) => `<label class="f" for="${id}">${label}<select class="inp" id="${id}">${opt ? '<option value="-1">No tiene</option>' : ''}${Array.from({length: ncol}, (_, j) => `<option value="${j}" ${j === val ? 'selected' : ''}>${esc(L(j))}</option>`).join('')}</select></label>`;
+    h += `<h2>¿En qué columnas está cada dato?</h2><p class="muted small">No pudimos reconocer la planilla sola. Elegí las columnas una vez y Remarcá las recuerda para este proveedor.</p>
+      <div class="tbl-wrap"><table class="prev"><tbody>${rows.slice(Math.max(0, cols.header), Math.max(0, cols.header) + 7).map(r => `<tr>${Array.from({length: ncol}, (_, j) => `<td>${esc(String(r[j] ?? '').slice(0, 30))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <div class="card stack">${sel('c-desc', 'Descripción del producto', cols.desc)}${sel('c-cost', 'Precio de costo', cols.cost)}${sel('c-code', 'Código (opcional)', cols.code, true)}</div>
+      <button class="btn block" data-a="colsOk">Continuar</button>`;
+    return h + `</main>`;
+  }
+  if (p.error){
+    h += `<div class="proc"><div class="errbox">${esc(p.error)}</div><div class="btns" style="width:100%"><button class="btn" data-a="procBack">Probar de nuevo</button></div></div>`;
+    return h + `</main>`;
+  }
+  const stepIx = p.pct < 0.8 ? 0 : p.pct < 0.98 ? 1 : 2;
+  const steps = ['Leer productos y costos', 'Buscarlos en tu catálogo', 'Calcular precios de venta'];
+  h += `<div class="proc"><div class="scan">${'<i></i>'.repeat(10)}</div><div><h2>${esc(sup?.name || '')}</h2><p class="muted" aria-live="polite">${esc(p.msg || 'Preparando…')}</p></div>
+    <div class="bar"><i style="width:${Math.round(p.pct * 100)}%"></i></div>
+    <div class="steps">${steps.map((s, i) => `<div class="${i < stepIx ? 'ok' : i === stepIx ? 'on' : ''}">${i < stepIx ? ic('check', 18) : `<span style="width:18px;text-align:center">${i + 1}</span>`}${s}</div>`).join('')}</div>
+    <p class="tiny">Puede tardar hasta un minuto por página.</p>
+    <button class="btn sec" data-a="procCancel">Cancelar</button></div>`;
+  return h + `</main>`;
+}
+function setProg(msg, pct){
+  if (!ui.proc) return;
+  ui.proc.msg = msg; if (pct != null) ui.proc.pct = Math.max(ui.proc.pct || 0, pct);
+  if (ui.screen === 'processing') render();
+}
+/* ============ flujo de lectura ============ */
+async function runPipeline(kind, payload){
+  const sup = supById(ui.nl.supId);
+  const ctl = new AbortController();
+  ui.proc = {supId: sup.id, msg: 'Preparando…', pct: 0.03, ctl, error: null, needCols: null};
+  screen('processing');
+  const prog = (m, p) => { if (!ctl.signal.aborted) setProg(m, p); };
+  try {
+    let res = {items: [], warn: [], meta: {}}, fileName = payload?.name || '', source = kind;
+    if (kind === 'images'){
+      prog('Preparando las fotos', 0.1);
+      const blobs = [];
+      for (const ph of payload.photos) blobs.push(await shrinkImage(ph.file));
+      if (!aiImagesOn()) throw new UserErr('La lectura de fotos no está disponible en este acceso. Subí la lista en PDF, Excel o como texto.');
+      res = await aiExtractImages(blobs, sup, ctl.signal, prog);
+      fileName = `${blobs.length} ${blobs.length === 1 ? 'foto' : 'fotos'}`;
+    } else if (kind === 'pdf'){
+      prog('Abriendo el PDF', 0.08);
+      const r = await readPdf(payload, prog);
+      if (r.images){
+        if (!aiImagesOn()) throw new UserErr('Este PDF es una imagen escaneada y para leerlo hace falta la IA, que no está disponible en este acceso. Pedile al proveedor la lista en Excel o pegala como texto.');
+        res = await aiExtractImages(r.images, sup, ctl.signal, prog);
+      } else if (aiOn()) res = await aiExtractText(r.lines, sup, ctl.signal, prog);
+      else res = {items: heuristicLines(r.lines), warn: ['Se leyó sin IA. Revisá que los productos y precios sean correctos.'], meta: {}};
+    } else if (kind === 'sheet'){
+      prog('Abriendo la planilla', 0.1);
+      const rows = await readSheetRows(payload);
+      if (!rows.length) throw new UserErr('La planilla está vacía.');
+      let cols = null, meta = {};
+      if (sup.cols && rows[sup.cols.header + 1]) cols = sup.cols;
+      if (!cols && aiOn()){
+        prog('Reconociendo las columnas con IA', 0.3);
+        try { const r = await aiDetectCols(rows, sup, ctl.signal); if (r){ cols = r.cols; meta = r.meta; } } catch (e) { if (e?.code === 'cancelled') throw e; }
+      }
+      if (!cols){ const g = guessCols(rows, false); if (g.desc >= 0 && g.cost >= 0 && rowsToItems(rows, g).length >= Math.min(3, rows.length - 1)) cols = g; }
+      let items = cols ? rowsToItems(rows, cols) : [];
+      if (!items.length){
+        cols = await new Promise((resolve, reject) => { ui.proc.needCols = {rows, cols: cols || guessCols(rows, false), resolve, reject}; render(); });
+        ui.proc.needCols = null; render();
+        items = rowsToItems(rows, cols);
+        sup.cols = cols; save('suppliers');
+      } else if (cols !== sup.cols){ sup.cols = cols; save('suppliers'); }
+      res = {items, warn: [], meta};
+    } else if (kind === 'text'){
+      const lines = String(payload.text).split(/\r?\n/);
+      fileName = 'Texto pegado';
+      if (aiOn()) res = await aiExtractText(lines, sup, ctl.signal, prog);
+      else res = {items: heuristicLines(lines), warn: ['Se leyó sin IA. Revisá que los productos y precios sean correctos.'], meta: {}};
+    }
+    if (ctl.signal.aborted) return;
+    // limpiar y quitar duplicados
+    const seen = new Map();
+    for (const it of res.items){ if (!(it.cost > 0) || it.cost > 1e9) continue; seen.set(itemKey(it.code, it.desc), it); }
+    const raw = [...seen.values()];
+    if (!raw.length) throw new UserErr(res.warn?.[0] || 'No encontramos productos con precio en la lista. Probá con una foto más nítida o con el archivo original.');
+    prog('Buscando cada producto en tu catálogo', 0.82);
+    await new Promise(r => setTimeout(r, 30));
+    const items = matchItems(raw, sup);
+    const doubts = items.filter(i => i.doubt);
+    if (doubts.length && aiOn() && doubts.length <= 200){
+      try { await aiResolveDoubts(doubts, ctl.signal, prog); } catch (e) { if (e?.code === 'cancelled') return; }
+    }
+    if (ctl.signal.aborted) return;
+    for (const it of items) if (!it.productId && !it.doubt && !it.ignored) it.include = S.products.length < 10;
+    if (res.meta?.columna && !sup.aiHint){ sup.aiHint = `Precio tomado de: ${res.meta.columna}`; save('suppliers'); }
+    prog('Calculando precios de venta', 0.99);
+    ui.review = {supId: sup.id, items, source, fileName, meta: res.meta || {}, warn: res.warn || [], filter: null, newCat: '', ivaOverride: null, open: {}, leave: false};
+    ui.proc = null;
+    screen('review');
+  } catch (e) {
+    if (ctl.signal.aborted || e?.code === 'cancelled') return;
+    console.error(e);
+    if (ui.proc){ ui.proc.error = e instanceof UserErr ? e.message : (e?.code ? aiErrMsg(e) : 'No se pudo leer el archivo. Verificá que sea una lista de precios y probá de nuevo.'); ui.proc.needCols = null; render(); }
+  }
+}
+
+/* ============ revisión ============ */
+function calcItem(it, R, sup){
+  const o = {st: '', nc: 0, np: 0, oc: null, op: null, pct: null, big: false, p: null, pack: 1, lock: false, loss: false, odd: false};
+  if (it.ignored){ o.st = 'ignored'; }
+  else if (it.doubt){ o.st = 'doubt'; }
+  const p = it.productId ? byId(it.productId) : null; o.p = p;
+  const cat = p ? p.category : (it.newCat || R.newCat || '');
+  o.pack = it.pack ? +it.pack : (p && p.buy ? packOf(p) : (it.aiPack || 1));
+  o.nc = costFromList(it.listed, sup, cat, R.ivaOverride, o.pack);
+  if (o.st) { o.np = priceFrom(o.nc, p || {category: cat}); return o; }
+  if (!p){ o.st = 'new'; o.np = hasVal(it.override) ? +it.override : priceFrom(o.nc, {category: cat}); o.loss = o.np < o.nc - 0.005; return o; }
+  o.oc = p.cost; o.op = p.price; o.lock = !!p.lock;
+  o.np = hasVal(it.override) ? +it.override : (p.lock ? p.price : priceFrom(o.nc, p));
+  o.loss = o.np < o.nc - 0.005;
+  const dc = o.nc - o.oc, dp = o.np - o.op;
+  if (Math.abs(dc) < 0.005 && Math.abs(dp) < 0.005) o.st = 'same';
+  else o.st = (dc > 0.004 || (Math.abs(dc) <= 0.004 && dp > 0)) ? 'up' : 'down';
+  o.pct = o.oc > 0 ? (o.nc / o.oc - 1) * 100 : null;
+  o.big = o.pct != null && Math.abs(o.pct) >= (+S.settings.bigChange || 20);
+  o.odd = o.pct != null && (o.pct > 150 || o.pct < -60);
+  if (o.loss) o.big = true;
+  return o;
+}
+function reviewCalc(){
+  const R = ui.review, sup = supById(R.supId);
+  const C = R.items.map(it => calcItem(it, R, sup));
+  const n = {up: 0, down: 0, new: 0, same: 0, ignored: 0, doubt: 0};
+  C.forEach(c => n[c.st]++);
+  let apply = 0;
+  R.items.forEach((it, i) => { const c = C[i]; if ((c.st === 'up' || c.st === 'down' || c.st === 'new') && it.include) apply++; });
+  return {R, sup, C, n, apply};
+}
+function rvRow(it, c, i){
+  const name = c.p ? c.p.name : tidyName(it.desc);
+  const matchNote = it.match === 'ia' ? '<span class="chip new">vinculado con IA</span>' : it.match === 'similar' ? '<span class="chip mute">nombre parecido</span>' : it.match === 'manual' ? '<span class="chip mute">elegido por vos</span>' : '';
+  const showSrc = c.p && norm(c.p.name) !== norm(it.desc);
+  let chip = c.st === 'new' ? '<span class="chip new">nuevo</span>' : c.pct != null ? `<span class="chip ${c.st === 'up' ? 'up' : 'down'}">${pctTxt(c.pct)}</span>` : (c.st === 'up' ? '<span class="chip warn">primer costo</span>' : '');
+  if (c.loss) chip = '<span class="chip bad">a pérdida</span>' + chip;
+  const extra = [c.pack > 1 ? `<span class="chip mute">precio ÷ ${c.pack}</span>` : '', c.lock ? '<span class="chip mute">precio fijo</span>' : '', c.odd ? '<span class="chip warn">¿cambió la presentación?</span>' : ''].join(' ');
+  return `<div class="li ${c.big ? 'hl' : ''}"><input type="checkbox" class="chk" data-a="rvToggle" data-i="${i}" ${it.include ? 'checked' : ''} aria-label="Incluir ${esc(name)}">
+    <button class="grow rowbtn" data-a="rvItem" data-i="${i}"><span class="grow"><span class="t">${esc(name)}</span>
+      <span class="s num">Costo ${c.oc != null ? `${costTxt(c.oc)} → ${NF2.format(c.nc)}` : costTxt(c.nc)}${hasVal(it.override) ? ' · precio a mano' : ''}</span>
+      ${showSrc || matchNote || extra.trim() ? `<span class="s">${matchNote} ${extra} ${showSrc ? 'En la lista: ' + esc(it.desc) : ''}</span>` : ''}</span>
+      <span class="r">${c.op != null ? `<span class="old">$ ${priceTxt(c.op)}</span>` : ''}${moneyHTML(c.np)}${chip}</span></button></div>`;
+}
+function viewReview(){
+  const {R, sup, C, n, apply} = reviewCalc();
+  const idx = st => R.items.map((it, i) => i).filter(i => C[i].st === st);
+  const f = R.filter;
+  const parts = [];
+  if (n.up) parts.push(`subieron ${n.up}`); if (n.down) parts.push(`bajaron ${n.down}`); if (n.new) parts.push(`hay ${n.new} ${n.new === 1 ? 'nuevo' : 'nuevos'}`);
+  let sentence = parts.length ? parts.join(', ').replace(/, ([^,]*)$/, ' y $1') : 'no hay cambios de precio';
+  sentence = sentence[0].toUpperCase() + sentence.slice(1) + '.';
+  let h = topbar('Revisá y confirmá', 'rvBack') + `<main class="wrap" style="padding-bottom:110px">`;
+  if (R.leave) h += `<div class="errbox stack"><b>¿Descartar esta lista?</b><span class="small">Los precios no se van a actualizar.</span><div class="btns"><button class="btn sm danger" data-a="rvDiscard">Descartar</button><button class="btn sm sec" data-a="rvStay">Seguir revisando</button></div></div>`;
+  const totalCh = n.up + n.down + n.new;
+  h += `<section class="sum">${totalCh ? `<span class="burst-badge">${burst('var(--yellow)', 14, 0.8)}<span><b>${totalCh}</b>cambios</span></span>` : ''}<p class="tiny" style="max-width:75%">${esc(sup.name)}${R.fileName ? ' · ' + esc(R.fileName) : ''} · ${R.items.length} renglones leídos</p><h2 style="margin-top:6px">${sentence}</h2>
+    <div class="sum-nums">
+      <button class="up ${f === 'up' ? 'on' : ''}" data-a="rvFilter" data-v="up"><b>${n.up}</b><span>Subieron</span></button>
+      <button class="down ${f === 'down' ? 'on' : ''}" data-a="rvFilter" data-v="down"><b>${n.down}</b><span>Bajaron</span></button>
+      <button class="new ${f === 'new' ? 'on' : ''}" data-a="rvFilter" data-v="new"><b>${n.new}</b><span>Nuevos</span></button>
+    </div>
+    <p class="tiny" style="margin-top:10px">${n.same} sin cambios${n.ignored ? ` · ${n.ignored} que no vendés` : ''}${n.doubt ? ` · <b style="color:var(--warn)">${n.doubt} para confirmar</b>` : ''}</p></section>`;
+  for (const w of R.warn) h += `<div class="warnbox">${esc(w)}</div>`;
+  const iva = R.meta?.iva;
+  const ivaEff = R.ivaOverride ?? !!sup.ivaIncluded;
+  if ((iva === 'incluido' && !ivaEff) || (iva === 'no_incluido' && ivaEff)){
+    h += `<div class="warnbox"><span>La lista parece tener precios <b>${iva === 'incluido' ? 'con' : 'sin'} IVA</b>, pero ${esc(sup.name)} está configurado ${ivaEff ? 'con' : 'sin'} IVA.</span><div class="btns"><button class="btn sm" data-a="rvIva" data-v="${iva === 'incluido' ? 1 : 0}">Tomar precios ${iva === 'incluido' ? 'con' : 'sin'} IVA</button><button class="btn sm sec" data-a="rvIvaKeep">Dejar como está</button></div></div>`;
+  } else if (R.ivaOverride != null){
+    h += `<div class="warnbox"><span>Precios tomados ${R.ivaOverride ? 'con' : 'sin'} IVA para esta lista.</span><div class="btns"><button class="btn sm sec" data-a="rvIvaSave">Recordarlo para ${esc(sup.name)}</button></div></div>`;
+  }
+  // dudas
+  const dq = idx('doubt');
+  if (dq.length && !f){
+    h += `<div class="sec-h"><h3>Confirmá ${dq.length} ${dq.length === 1 ? 'coincidencia' : 'coincidencias'}</h3></div>`;
+    for (const i of dq){
+      const it = R.items[i]; const p = byId(it.suggest);
+      h += `<div class="doubt"><span class="tiny">En la lista dice</span><span class="src">${esc(it.desc)}${it.code ? ` · cód. ${esc(it.code)}` : ''} · ${costTxt(+it.listed)}</span>
+        ${p ? `<span>¿Es <b>${esc(p.name)}</b>?</span>` : ''}
+        <div class="btns">${p ? `<button class="btn sm" data-a="rvYes" data-i="${i}">Sí, es ese</button>` : ''}<button class="btn sm sec" data-a="rvPick" data-i="${i}">Elegir otro</button><button class="btn sm sec" data-a="rvNew" data-i="${i}">Es nuevo</button><button class="btn sm ghost" data-a="rvIgnore" data-i="${i}">No lo vendo</button></div></div>`;
+    }
+  }
+  const section = (title, list, key, extra = '') => {
+    if (!list.length) return '';
+    const lim = R.open[key] ? list.length : 40;
+    return `<div class="sec-h"><h3>${title}</h3>${extra}</div><div class="list">${list.slice(0, lim).map(i => rvRow(R.items[i], C[i], i)).join('')}${list.length > lim ? `<button class="more" data-a="rvMore" data-v="${key}">Ver ${list.length - lim} más</button>` : ''}</div>`;
+  };
+  const ups = idx('up'), downs = idx('down'), news = idx('new');
+  const big = [...ups, ...downs].filter(i => C[i].big);
+  const bySize = (a, b) => Math.abs(C[b].pct ?? 0) - Math.abs(C[a].pct ?? 0);
+  if (!f || f === 'up' || f === 'down'){
+    if (!f && big.length) h += section(`Cambios grandes (más de ${NF0.format(S.settings.bigChange)} %)`, big.sort(bySize), 'big');
+    if (!f || f === 'up') h += section('Subieron', ups.filter(i => f || !C[i].big).sort(bySize), 'up');
+    if (!f || f === 'down') h += section('Bajaron', downs.filter(i => f || !C[i].big).sort(bySize), 'down');
+  }
+  if (!f || f === 'new'){
+    if (news.length){
+      const cats = (S.settings.categories || []).map(c => c.name);
+      h += `<div class="card flat stack" style="padding:12px"><p class="small">Los productos nuevos que marques se agregan a tu catálogo. Los que no marques se ocultan en las próximas listas de este proveedor.</p>
+        <div class="row" style="flex-wrap:wrap"><button class="btn sm sec" data-a="rvAllNew" data-v="1">Marcar todos</button><button class="btn sm sec" data-a="rvAllNew" data-v="0">Ninguno</button>
+        ${cats.length ? `<select class="inp" style="flex:1;min-width:160px;min-height:38px;padding:6px 10px" data-ch="rvNewCat" aria-label="Categoría para los nuevos"><option value="">Categoría para los nuevos…</option>${cats.map(c => `<option ${R.newCat === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>` : ''}</div></div>`;
+      h += section('Nuevos', news, 'new');
+    }
+  }
+  if (!f){
+    const same = idx('same');
+    if (same.length) h += R.open.same ? section('Sin cambios', same, 'sameall') : `<button class="btn ghost block" data-a="rvMore" data-v="same">Ver ${same.length} sin cambios</button>`;
+    const ign = idx('ignored');
+    if (ign.length) h += R.open.ign ? `<div class="sec-h"><h3>No los vendés</h3></div><div class="list">${ign.map(i => `<div class="li"><span class="grow"><span class="t">${esc(R.items[i].desc)}</span><span class="s">${costTxt(+R.items[i].listed)} en la lista</span></span><button class="btn sm sec" data-a="rvUnignore" data-i="${i}">Lo vendo</button></div>`).join('')}</div>` : `<button class="btn ghost block" data-a="rvMore" data-v="ign">Ver ${ign.length} que no vendés</button>`;
+  }
+  if (!apply && !dq.length) h += `<div class="empty"><p>No hay precios para actualizar en esta lista.</p></div>`;
+  h += `</main><div class="applybar"><div><span class="grow small">${dq.length ? `<b style="color:var(--warn)">${dq.length} sin confirmar</b> no se aplican` : `<b>${apply}</b> ${apply === 1 ? 'cambio' : 'cambios'} marcados`}</span><button class="btn tagb" data-a="apply" ${apply || n.same ? '' : 'disabled'}>${ic('check', 20)}Aplicar${apply ? ' ' + apply : ''}</button></div></div>`;
+  return h;
+}
+
+function applyReview(){
+  const {R, sup, C} = reviewCalc();
+  const now = Date.now();
+  const maps = S.maps[sup.id] || (S.maps[sup.id] = {});
+  const changes = []; const counts = {up: 0, down: 0, new: 0};
+  R.items.forEach((it, i) => {
+    const c = C[i];
+    if (c.st === 'ignored' || c.st === 'doubt') return;
+    if (c.st === 'new'){
+      if (it.include){
+        const cat = it.newCat || R.newCat || '';
+        const p = {id: newId(), code: it.code || '', name: tidyName(it.desc), category: cat, supplierId: sup.id, cost: c.nc, price: c.np, margin: null, updatedAt: now, priceAt: now, buy: c.pack > 1 ? {type: 'pack', n: c.pack} : {type: 'u'}, sell: 'u'};
+        pushHist(p, now);
+        S.products.push(p); invalidateIndex();
+        maps[it.key] = p.id; changes.push({id: p.id, b: null, a: {cost: p.cost, price: p.price}}); counts.new++;
+      } else maps[it.key] = '-';
+      return;
+    }
+    maps[it.key] = it.productId;
+    const p = c.p;
+    if (c.st === 'same'){ p.checkedAt = now; return; }
+    if (!it.include) return;
+    const b = {cost: p.cost, price: p.price, updatedAt: p.updatedAt || null, priceAt: p.priceAt || null, supplierId: p.supplierId || null, checkedAt: p.checkedAt || null, buy: p.buy ? {...p.buy} : null, hist: (p.hist || []).slice()};
+    p.cost = c.nc; p.updatedAt = now; p.checkedAt = now; p.supplierId = sup.id;
+    if (c.pack !== packOf(p) && !(p.buy?.type === 'kg')) p.buy = c.pack > 1 ? {type: 'pack', n: c.pack} : {type: 'u'};
+    if (Math.abs(p.price - c.np) > 0.004){ p.price = c.np; p.priceAt = now; }
+    pushHist(p, now);
+    changes.push({id: p.id, b, a: {cost: p.cost, price: p.price}});
+    counts[c.st]++;
+  });
+  if (R.ivaOverride != null && R.ivaSave){ sup.ivaIncluded = !!R.ivaOverride; }
+  const prevListAt = sup.lastListAt || null;
+  sup.lastListAt = now; sup.lists = (sup.lists || 0) + 1;
+  const batch = {id: newId(), at: now, supId: sup.id, supName: sup.name, source: R.source, file: R.fileName, counts, changes, undone: false, prevListAt};
+  S.history.unshift(batch);
+  if (S.history.length > 25) S.history.length = 25;
+  save('products', 'maps', 'suppliers', 'history');
+  ui.review = null; ui.nl = null; ui.doneId = batch.id;
+  screen('done');
+  if (changes.length) confetti();
+}
+function confetti(){
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = document.createElement('canvas'); cv.id = 'confetti'; document.body.appendChild(cv);
+  const dpr = Math.min(2, window.devicePixelRatio || 1), W = innerWidth, H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  const cs = getComputedStyle(document.documentElement);
+  const cols = ['--yellow', '--pink', '--sky', '--lime', '--orange', '--blue'].map(v => cs.getPropertyValue(v).trim() || '#FFE135');
+  const P = Array.from({length: 60}, () => ({x: W / 2 + (Math.random() - .5) * 80, y: H * 0.32, vx: (Math.random() - .5) * 13, vy: -Math.random() * 13 - 4, r: Math.random() * Math.PI, vr: (Math.random() - .5) * .35, w: 7 + Math.random() * 7, h: 4 + Math.random() * 6, c: cols[Math.floor(Math.random() * cols.length)], s: Math.random() < .3}));
+  let t = 0;
+  (function frame(){
+    ctx.clearRect(0, 0, W, H); t++;
+    for (const p of P){ p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.strokeStyle = '#17112F'; ctx.lineWidth = 1.2;
+      if (p.s){ ctx.beginPath(); ctx.arc(0, 0, p.h, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); } else { ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h); }
+      ctx.restore(); }
+    if (t < 110) requestAnimationFrame(frame); else cv.remove();
+  })();
+}
+function tidyName(s){
+  s = String(s).replace(/\s+/g, ' ').trim();
+  if (s === s.toUpperCase() && /[A-Z]/.test(s)){
+    s = s.toLowerCase().replace(/(^|[\s(\/-])([a-záéíóúñü])/g, (m, a, b) => a + b.toUpperCase());
+    s = s.replace(/\b(\d+(?:[.,]\d+)?)\s?(Kg|Kgs|Gr|Grs|G|Ml|Cc|Lt|Lts|L|Un|U)\b/g, (m, n, u) => n + ' ' + ({kg: 'kg', kgs: 'kg', gr: 'g', grs: 'g', g: 'g', ml: 'ml', cc: 'cc', lt: 'l', lts: 'l', l: 'l', un: 'u', u: 'u'}[u.toLowerCase()]));
+    s = s.replace(/\b(De|Del|La|El|Con|Sin|En|Y|X|Para)\b/g, w => w.toLowerCase());
+    s = s[0].toUpperCase() + s.slice(1);
+  }
+  return s;
+}
+function lastUndoable(){ return S.history.find(h => !h.undone); }
+function undoBatch(id){
+  const b = S.history.find(h => h.id === id);
+  if (!b || b.undone || lastUndoable()?.id !== id) return;
+  const del = new Set();
+  for (const ch of b.changes.slice().reverse()){
+    const p = byId(ch.id); if (!p) continue;
+    if (ch.b === null) del.add(p.id);
+    else Object.assign(p, ch.b);
+  }
+  if (del.size) S.products = S.products.filter(p => !del.has(p.id));
+  if (b.source !== 'recalculo'){ const sup = supById(b.supId); if (sup) sup.lastListAt = b.prevListAt ?? null; }
+  b.undone = true;
+  invalidateIndex();
+  save('products', 'history', 'suppliers');
+}
+
+/* ---------- listo ---------- */
+function viewDone(){
+  const b = S.history.find(h => h.id === ui.doneId);
+  if (!b) return viewHome();
+  const ids = b.changes.map(c => c.id).filter(id => byId(id));
+  let h = topbar('Listo', 'home') + `<main class="wrap">`;
+  if (b.undone){
+    h += `<div class="done-hero"><div class="ok">${burst('var(--sky)', 16, 0.84)}${ic('back')}</div><h2>Deshiciste la lista</h2><p class="muted">Los precios volvieron a como estaban.</p></div><button class="btn block" data-a="home">Volver al inicio</button>`;
+    return h + `</main>`;
+  }
+  h += `<div class="done-hero"><div class="ok">${burst('var(--lime)', 16, 0.84)}${ic('check')}</div><h2>${b.changes.length ? `Actualizaste ${b.changes.length} ${b.changes.length === 1 ? 'precio' : 'precios'}` : 'Tus precios ya estaban al día'}</h2><p class="muted">${esc(b.supName)} · ${batchLine(b)}</p></div>`;
+  if (ids.length) h += `<button class="btn tagb block" data-a="labels" data-id="${b.id}">${ic('tag', 20)}Etiquetas de lo que cambió (${ids.length})</button>
+    <button class="btn sec block" data-a="exportBatch" data-id="${b.id}">${ic('dl', 20)}Exportar cambios a Excel</button>`;
+  h += `<div class="btns"><button class="btn sec" data-a="undo" data-id="${b.id}">Deshacer</button><button class="btn sec" data-a="home">Volver al inicio</button></div>`;
+  return h + `</main>`;
+}
+
+/* ---------- importar catálogo ---------- */
+function viewImport(){
+  const m = ui.imp;
+  const {rows, cols} = m;
+  const ncol = Math.max(...rows.slice(0, 40).map(r => r.length));
+  const hdr = cols.header >= 0 ? rows[cols.header] : [];
+  const L = j => `Columna ${String.fromCharCode(65 + (j % 26))}${hdr[j] ? ': ' + String(hdr[j]).slice(0, 24) : ''}`;
+  const sel = (k, label, opt) => `<label class="f" for="imp-${k}">${label}<select class="inp" id="imp-${k}" data-ch="impCol" data-k="${k}">${opt ? '<option value="-1">No tiene</option>' : ''}${Array.from({length: ncol}, (_, j) => `<option value="${j}" ${j === cols[k] ? 'selected' : ''}>${esc(L(j))}</option>`).join('')}</select></label>`;
+  const items = importItems();
+  let h = topbar('Importar catálogo', 'impBack') + `<main class="wrap">
+    <p class="muted small">${esc(m.fileName)} · revisá qué columna tiene cada dato.</p>
+    <div class="tbl-wrap"><table class="prev"><tbody>${rows.slice(Math.max(0, cols.header), Math.max(0, cols.header) + 6).map((r, ri) => `<tr>${Array.from({length: ncol}, (_, j) => `<${ri === 0 && cols.header >= 0 ? 'th' : 'td'}>${esc(String(r[j] ?? '').slice(0, 30))}</${ri === 0 && cols.header >= 0 ? 'th' : 'td'}>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="card stack">${sel('desc', 'Producto')}${sel('code', 'Código', true)}${sel('cat', 'Categoría', true)}${sel('cost', 'Costo', true)}${sel('price', 'Precio de venta', true)}
+      <label class="f" for="imp-sup">Proveedor<select class="inp" id="imp-sup" data-ch="impSup"><option value="">Varios o ninguno</option>${S.suppliers.map(s => `<option value="${s.id}" ${m.supId === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></label>
+      ${cols.cost >= 0 ? `<label class="toggle small"><span>Recalcular precios de venta con mi margen</span><input type="checkbox" data-ch="impRecalc" ${m.recalc ? 'checked' : ''}></label>` : ''}
+    </div>
+    ${items.length ? `<p class="small"><b>${items.length}</b> productos listos para importar${m.dupes ? `, ${m.dupes} ya existen y se actualizan` : ''}.</p>` : `<div class="warnbox">No encontramos productos con esas columnas. Probá eligiendo otras.</div>`}
+    <button class="btn block" data-a="impGo" ${items.length ? '' : 'disabled'}>Importar ${items.length} productos</button>
+  </main>`;
+  return h;
+}
+function importItems(){
+  const m = ui.imp, {rows, cols} = m; const out = [];
+  let dupes = 0;
+  const byCode = new Map(S.products.filter(p => p.code).map(p => [normCode(p.code), p]));
+  const byName = new Map(S.products.map(p => [norm(p.name), p]));
+  for (let i = cols.header + 1; i < rows.length; i++){
+    const r = rows[i];
+    const name = String(r[cols.desc] ?? '').trim();
+    if (!name || !/[a-záéíóúñ]/i.test(name)) continue;
+    const it = {name, code: cols.code >= 0 ? String(r[cols.code] ?? '').trim() : '', category: cols.cat >= 0 ? String(r[cols.cat] ?? '').trim() : '', cost: cols.cost >= 0 ? parseNum(r[cols.cost]) : NaN, price: cols.price >= 0 ? parseNum(r[cols.price]) : NaN};
+    if (!(it.cost > 0) && !(it.price > 0)) continue;
+    it.existing = (it.code && byCode.get(normCode(it.code))) || byName.get(norm(name)) || null;
+    if (it.existing) dupes++;
+    out.push(it);
+  }
+  m.dupes = dupes;
+  return out;
+}
+function doImport(){
+  const m = ui.imp; const items = importItems(); const now = Date.now();
+  const cats = new Set((S.settings.categories || []).map(c => c.name));
+  for (const it of items){
+    if (it.category && !cats.has(it.category)){ S.settings.categories.push({name: it.category, margin: null, iva: null}); cats.add(it.category); }
+    const p = it.existing || {id: newId(), name: it.name, code: '', category: '', supplierId: m.supId || null, cost: 0, price: 0, margin: null, updatedAt: now, priceAt: now};
+    p.name = it.name; if (it.code) p.code = it.code; if (it.category) p.category = it.category; if (m.supId) p.supplierId = m.supId;
+    if (it.cost > 0) p.cost = r2(it.cost);
+    if (it.price > 0 && !m.recalc) p.price = r2(it.price);
+    else if (p.cost > 0) p.price = priceFrom(p.cost, p);
+    p.updatedAt = now;
+    pushHist(p, now);
+    if (!it.existing) S.products.push(p);
+  }
+  invalidateIndex();
+  save('products', 'settings');
+  ui.imp = null;
+  toast(`Importaste ${items.length} productos.`);
+  go('prices');
+}
+const SCREENS = {newlist: viewNewList, processing: viewProcessing, review: viewReview, done: viewDone, import: viewImport};
+
+/* ============ hojas (paneles inferiores) ============ */
+function renderSheet(){
+  const el = $('#sheet');
+  const s = ui.sheet;
+  if (!s){ el.hidden = true; el.innerHTML = ''; return; }
+  const body = (SHEETS[s.type] || (() => ''))(s);
+  el.hidden = false;
+  el.innerHTML = `<div class="bg" data-a="closeSheet"></div><div class="pane" role="dialog" aria-modal="true"><div class="grab"></div>${body}</div>`;
+}
+function sheetHead(title){ return `<div class="pane-h"><h2>${esc(title)}</h2><button class="x" data-a="closeSheet" aria-label="Cerrar">${ic('x', 20)}</button></div>`; }
+function catOptions(sel){
+  const cats = (S.settings.categories || []).map(c => c.name);
+  return `<option value="">Sin categoría</option>${cats.map(c => `<option ${c === sel ? 'selected' : ''}>${esc(c)}</option>`).join('')}<option value="__new">+ Nueva categoría…</option>`;
+}
+const SHEETS = {
+  product(s){
+    const p = s.id ? byId(s.id) : {name: '', code: '', category: '', supplierId: '', cost: '', price: '', margin: null};
+    if (!p) return '';
+    const m = realMargin(p);
+    return sheetHead(s.id ? 'Producto' : 'Nuevo producto') + `<div class="stack">
+      <label class="f" for="p-name">Nombre<input class="inp" id="p-name" value="${esc(p.name)}" placeholder="Ej.: Yerba Playadito 1 kg"></label>
+      <div class="grid2"><label class="f" for="p-code">Código<input class="inp" id="p-code" value="${esc(p.code)}"></label>
+      <label class="f" for="p-cat">Categoría<select class="inp" id="p-cat" data-ch="catSel">${catOptions(p.category)}</select></label></div>
+      <label class="f" for="p-sup">Proveedor<select class="inp" id="p-sup"><option value="">Ninguno</option>${S.suppliers.map(x => `<option value="${x.id}" ${x.id === p.supplierId ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
+      <div class="grid2"><label class="f" for="p-buy">El proveedor lo cobra por<select class="inp" id="p-buy" data-ch="pBuy">${[['u', 'Unidad'], ['pack', 'Bulto o caja'], ['kg', 'Kilo']].map(([v, l]) => `<option value="${v}" ${(p.buy?.type || 'u') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label class="f" for="p-sell">Lo vendés por<select class="inp" id="p-sell" data-ch="pBuy">${[['u', 'Unidad'], ['kg', 'Kilo'], ['100g', '100 g']].map(([v, l]) => `<option value="${v}" ${(p.sell || 'u') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label></div>
+      <label class="f" for="p-bn" id="p-bn-w" ${p.buy?.type === 'pack' ? '' : 'hidden'}>Unidades por bulto<input class="inp num" id="p-bn" inputmode="numeric" value="${esc(p.buy?.n || '')}" placeholder="Ej.: 12"></label>
+      <p class="tiny">Se usa al leer las próximas listas: el precio del bulto se divide por las unidades, y el del kilo por 10 si vendés por 100 g.</p>
+      <div class="grid2"><label class="f" for="p-cost">Costo ${p.sell === 'kg' ? 'por kilo' : p.sell === '100g' ? 'por 100 g' : 'por unidad'}<div class="inp-pre"><input class="inp num" id="p-cost" inputmode="decimal" value="${p.cost ? esc(String(p.cost).replace('.', ',')) : ''}" data-in="pCalc"><b>$</b></div></label>
+      <label class="f" for="p-margin">Margen<div class="inp-suf"><input class="inp num" id="p-margin" inputmode="decimal" value="${hasVal(p.margin) ? esc(p.margin) : ''}" placeholder="${NF1.format(marginFor({category: p.category}))}" data-in="pCalc"><b>%</b></div></label></div>
+      <label class="f" for="p-price">Precio de venta<div class="inp-pre"><input class="inp num" id="p-price" inputmode="decimal" value="${p.price ? esc(String(p.price).replace('.', ',')) : ''}" data-in="pManual"><b>$</b></div></label>
+      <p class="tiny" id="p-info">${p.cost > 0 && p.price > 0 ? `Ganancia por unidad: ${costTxt(p.price - p.cost)} (${m != null ? NF1.format(m) + ' %' : '—'})` : 'Si cargás el costo, el precio se calcula con tu margen.'}</p>
+      <label class="toggle small"><span>Precio fijo: las listas actualizan el costo pero no el precio de venta</span><input type="checkbox" id="p-lock" ${p.lock ? 'checked' : ''}></label>
+      ${s.id ? `<p class="tiny">Precio actualizado ${ago(p.priceAt)} · costo revisado ${ago(p.checkedAt || p.updatedAt)}</p>` : ''}
+      ${s.id && (p.hist || []).length > 1 ? histHTML(p) : ''}
+      <button class="btn block" data-a="pSave">Guardar</button>
+      ${s.id ? (s.del ? `<div class="errbox stack"><span>¿Eliminar ${esc(p.name)}?</span><div class="btns"><button class="btn sm danger" data-a="pDelYes">Eliminar</button><button class="btn sm sec" data-a="pDelNo">Cancelar</button></div></div>` : `<div class="btns"><button class="btn sm sec" data-a="labelsOne">${ic('tag', 18)}Etiqueta</button><button class="btn sm ghost" data-a="pDel">Eliminar producto</button></div>`) : ''}
+    </div>`;
+  },
+  supplier(s){
+    const x = s.id ? supById(s.id) : {name: '', ivaIncluded: false, discount: '', aiHint: ''};
+    if (!x) return '';
+    const learned = s.id ? Object.values(S.maps[s.id] || {}) : [];
+    return sheetHead(s.id ? x.name : 'Nuevo proveedor') + `<div class="stack">
+      <label class="f" for="s-name">Nombre<input class="inp" id="s-name" value="${esc(x.name)}"></label>
+      <label class="toggle"><span>Los precios de su lista <b>incluyen IVA</b></span><input type="checkbox" id="s-iva" ${x.ivaIncluded ? 'checked' : ''}></label>
+      <label class="f" for="s-disc">Bonificación o descuento que te hace<div class="inp-suf"><input class="inp num" id="s-disc" inputmode="decimal" value="${esc(x.discount || '')}" placeholder="0"><b>%</b></div></label>
+      <label class="f" for="s-hint">Indicaciones para leer su lista<textarea class="inp" id="s-hint" rows="2" placeholder="Ej.: usar la columna 'Precio x unidad', no la de bulto">${esc(x.aiHint || '')}</textarea></label>
+      ${s.id ? `<p class="tiny">${learned.filter(v => v !== '-').length} productos vinculados y ${learned.filter(v => v === '-').length} marcados como "no lo vendo". Remarcá los recuerda en cada lista.</p>` : ''}
+      <button class="btn block" data-a="sSave">Guardar</button>
+      ${s.id ? `<div class="btns"><button class="btn sm sec" data-a="newlistSup" data-id="${x.id}">Cargar lista nueva</button>${learned.length ? `<button class="btn sm ghost" data-a="sForget">Olvidar vinculaciones</button>` : ''}</div>
+      ${s.del ? `<div class="errbox stack"><span>¿Eliminar a ${esc(x.name)}? Sus productos quedan en tu catálogo.</span><div class="btns"><button class="btn sm danger" data-a="sDelYes">Eliminar</button><button class="btn sm sec" data-a="sDelNo">Cancelar</button></div></div>` : `<button class="btn sm ghost" data-a="sDel">Eliminar proveedor</button>`}` : ''}
+    </div>`;
+  },
+  rvItem(s){
+    const R = ui.review, sup = supById(R.supId); const it = R.items[s.i]; const c = calcItem(it, R, sup);
+    const ivaInc = R.ivaOverride ?? !!sup.ivaIncluded;
+    const cat = c.p ? c.p.category : (it.newCat || R.newCat);
+    return sheetHead(c.p ? c.p.name : tidyName(it.desc)) + `<div class="stack">
+      <div class="card flat" style="padding:12px">
+        <div class="kv"><span>En la lista</span><b style="text-align:right">${esc(it.desc)}</b></div>
+        ${it.code ? `<div class="kv"><span>Código</span><b>${esc(it.code)}</b></div>` : ''}
+        <div class="kv"><span>Precio de lista</span><b>${costTxt(+it.listed)} ${ivaInc ? 'con IVA' : 'sin IVA'}</b></div>
+        ${c.pack > 1 ? `<div class="kv"><span>÷ ${c.pack} unidades de venta</span><b>${costTxt(+it.listed / c.pack)}</b></div>` : ''}
+        ${!ivaInc ? `<div class="kv"><span>+ IVA ${NF1.format(ivaFor(cat))} %</span><b></b></div>` : ''}
+        ${+sup.discount ? `<div class="kv"><span>− bonificación ${NF1.format(sup.discount)} %</span><b></b></div>` : ''}
+        <div class="kv"><span>Costo para vos</span><b>${costTxt(c.nc)}</b></div>
+        ${c.oc != null ? `<div class="kv"><span>Costo anterior</span><b>${costTxt(c.oc)}${c.pct != null ? ` (${pctTxt(c.pct)})` : ''}</b></div>` : ''}
+        ${c.op != null ? `<div class="kv"><span>Precio de venta actual</span><b>$ ${priceTxt(c.op)}</b></div>` : ''}
+      </div>
+      <label class="f" for="rv-pack">¿Cuántas unidades de venta trae ese precio?<input class="inp num" id="rv-pack" inputmode="numeric" value="${c.pack}"></label>
+      <p class="tiny">Poné 12 si el precio es por una caja de 12 y vos vendés por unidad. Remarcá lo recuerda para las próximas listas.</p>
+      ${c.lock ? '<div class="warnbox">Este producto tiene precio fijo: se actualiza el costo pero el precio de venta no cambia, salvo que escribas uno nuevo.</div>' : ''}
+      ${c.st === 'new' ? `<label class="f" for="rv-cat">Categoría<select class="inp" id="rv-cat" data-ch="catSel">${catOptions(it.newCat || R.newCat)}</select></label>` : ''}
+      <label class="f" for="rv-price">Precio de venta nuevo<div class="inp-pre"><input class="inp num" id="rv-price" inputmode="decimal" placeholder="${priceTxt(priceFrom(c.nc, c.p || {category: cat}))}" value="${hasVal(it.override) ? esc(String(it.override).replace('.', ',')) : ''}"><b>$</b></div></label>
+      <p class="tiny">Vacío = se calcula con el margen (${NF1.format(marginFor(c.p || {category: cat}))} %).</p>
+      <label class="toggle"><span>${c.st === 'new' ? 'Agregar a mi catálogo' : 'Aplicar este cambio'}</span><input type="checkbox" id="rv-inc" ${it.include ? 'checked' : ''}></label>
+      <button class="btn block" data-a="rvSave" data-i="${s.i}">Listo</button>
+      <div class="btns"><button class="btn sm sec" data-a="rvPick" data-i="${s.i}">${c.p ? 'Es otro producto' : 'Ya lo tengo en el catálogo'}</button>${c.p ? `<button class="btn sm sec" data-a="rvNew" data-i="${s.i}">Es un producto nuevo</button>` : `<button class="btn sm ghost" data-a="rvIgnore" data-i="${s.i}">No lo vendo</button>`}</div>
+    </div>`;
+  },
+  pick(s){
+    const R = ui.review; const it = R.items[s.i];
+    return sheetHead('¿Qué producto es?') + `<div class="stack"><p class="small muted">En la lista: <b>${esc(it.desc)}</b></p>
+      <div class="inp-pre"><input class="inp" id="pick-q" type="search" placeholder="Buscar en tu catálogo" value="${esc(s.q || '')}" data-in="pickQ" autocomplete="off"><b>${ic('search', 18)}</b></div>
+      <div id="pick-list">${pickList(s)}</div></div>`;
+  },
+  batch(s){
+    const b = S.history.find(h => h.id === s.id); if (!b) return '';
+    const can = lastUndoable()?.id === b.id;
+    const rows = b.changes.slice(0, 60).map(ch => { const p = byId(ch.id); const name = p ? p.name : 'Producto eliminado'; return `<div class="li"><span class="grow"><span class="t">${esc(name)}</span><span class="s">${ch.b ? `Costo ${costTxt(ch.b.cost)} → ${costTxt(ch.a.cost)}` : 'Agregado al catálogo'}</span></span><span class="r">${ch.b ? `<span class="old">$ ${priceTxt(ch.b.price)}</span>` : ''}${moneyHTML(ch.a.price)}</span></div>`; }).join('');
+    return sheetHead(b.supName) + `<div class="stack"><p class="muted small">${fmtDate(b.at)} · ${batchLine(b)}${b.file ? ' · ' + esc(b.file) : ''}${b.undone ? ' · <b>deshecha</b>' : ''}</p>
+      ${!b.undone && b.changes.length ? `<div class="btns"><button class="btn sm tagb" data-a="labels" data-id="${b.id}">${ic('tag', 18)}Etiquetas</button><button class="btn sm sec" data-a="exportBatch" data-id="${b.id}">${ic('dl', 18)}Excel</button>${can ? `<button class="btn sm sec" data-a="undo" data-id="${b.id}">Deshacer</button>` : ''}</div>` : ''}
+      ${!b.undone && !can ? '<p class="tiny">Solo se puede deshacer la última lista aplicada.</p>' : ''}
+      ${rows ? `<div class="list">${rows}</div>` : '<p class="muted">Esta lista no cambió precios.</p>'}${b.changes.length > 60 ? `<p class="tiny">Y ${b.changes.length - 60} más.</p>` : ''}</div>`;
+  },
+  labels(s){
+    const n = s.ids.length;
+    const sizes = [['s', 'Chicas', '40 por hoja'], ['m', 'Medianas', '24 por hoja'], ['g', 'Grandes', '10 por hoja']];
+    return sheetHead('Etiquetas de precio') + `<div class="stack"><p class="muted">${n} ${n === 1 ? 'etiqueta' : 'etiquetas'} en hojas A4, listas para imprimir y recortar.</p>
+      <div class="seg">${sizes.map(([v, l, d]) => `<button class="${s.size === v ? 'on' : ''}" data-a="lblSize" data-v="${v}">${l} · ${d}</button>`).join('')}</div>
+      <label class="toggle small"><span>Mostrar el nombre del comercio</span><input type="checkbox" id="lbl-store" ${s.store !== false ? 'checked' : ''}></label>
+      <button class="btn tagb block" data-a="lblGo">${ic('dl', 20)}Descargar PDF</button></div>`;
+  }
+};
+function histHTML(p){
+  const h = p.hist.slice(-8);
+  const max = Math.max(...h.map(x => x[1]), 1), min = Math.min(...h.map(x => x[1]));
+  const W = 280, H = 56, pad = 6;
+  const X = i => pad + (h.length === 1 ? 0 : i * (W - 2 * pad) / (h.length - 1));
+  const Y = v => max === min ? H / 2 : H - pad - (v - min) / (max - min) * (H - 2 * pad);
+  const pts = h.map((x, i) => `${X(i).toFixed(1)},${Y(x[1]).toFixed(1)}`).join(' ');
+  const first = h[0][1], last = h[h.length - 1][1];
+  const rows = h.slice().reverse().map((x, i, arr) => { const prev = arr[i + 1]; const d = prev && prev[1] > 0 ? (x[1] / prev[1] - 1) * 100 : null; return `<div class="kv"><span>${fmtDate(x[0])}</span><span class="num">costo ${costTxt(x[1])}${d != null && Math.abs(d) >= 0.05 ? ` <span class="chip ${d > 0 ? 'up' : 'down'}">${pctTxt(d)}</span>` : ''}</span><b>$ ${priceTxt(x[2])}</b></div>`; }).join('');
+  return `<div class="card flat stack" style="padding:12px"><div class="row"><b class="grow">Historial de costos</b>${first > 0 ? `<span class="chip ${last >= first ? 'up' : 'down'}">${pctTxt((last / first - 1) * 100)}</span>` : ''}</div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Evolución del costo"><polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${h.map((x, i) => `<circle cx="${X(i).toFixed(1)}" cy="${Y(x[1]).toFixed(1)}" r="${i === h.length - 1 ? 4 : 2.5}" fill="${i === h.length - 1 ? 'var(--tag)' : 'var(--ink)'}" stroke="var(--ink)" stroke-width="1"/>`).join('')}</svg>
+    <div>${rows}</div></div>`;
+}
+function pickList(s){
+  const R = ui.review; const it = R.items[s.i];
+  let ids;
+  if (s.q && s.q.trim()){ const qs = norm(s.q).split(' ').filter(Boolean); ids = S.products.filter(p => { const h = norm(p.name + ' ' + p.code); return qs.every(q => h.includes(q)); }).slice(0, 40).map(p => p.id); }
+  else ids = (it.cands.length ? it.cands : candidates(it.desc, R.supId, 8).map(c => c.id));
+  if (!ids.length) return `<p class="muted small">No hay productos parecidos. Buscalo por nombre o código.</p>`;
+  return `<div class="list">${ids.map(id => { const p = byId(id); if (!p) return ''; return `<button class="li" data-a="pickSet" data-id="${id}"><span class="grow"><span class="t">${esc(p.name)}</span><span class="s">${esc([p.category, p.code && 'cód. ' + p.code].filter(Boolean).join(' · ') || ' ')}</span></span>${moneyHTML(p.price)}</button>`; }).join('')}</div>`;
+}
+
+/* ============ archivos de salida ============ */
+async function saveFile(filename, blob){
+  const dl = await capUse('downloads');
+  if (!dl){ toast('Para descargar archivos, abrí Remarcá desde tu cuenta de Claude.'); return false; }
+  try { const r = await dl.save({filename, data: blob}); if (r?.status === 'saved') toast('Listo: ' + filename); return true; }
+  catch (e) {
+    if (e?.code === 'declined') return false;
+    if (e?.code === 'rate_limited'){ toast('Ya hay una descarga esperando tu confirmación.'); return false; }
+    toast('No se pudo guardar el archivo en este dispositivo.'); return false;
+  }
+}
+const stamp = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const fileSafe = s => String(s || 'comercio').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
+async function exportXlsx(sheetName, rows, filename, widths){
+  try { await loadLib('xlsx'); } catch (e) { toast(e.message); return; }
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  if (widths) ws['!cols'] = widths.map(w => ({wch: w}));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  const out = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
+  await saveFile(filename, new Blob([out], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+}
+function exportPrices(){
+  const arr = filteredProducts();
+  const rows = [['Código', 'Producto', 'Categoría', 'Proveedor', 'Se vende por', 'Costo', 'Margen %', 'Precio de venta', 'Precio actualizado']];
+  for (const p of arr) rows.push([p.code || '', p.name, p.category || '', supById(p.supplierId)?.name || '', {u: 'unidad', kg: 'kilo', '100g': '100 g'}[p.sell || 'u'], p.cost || null, realMargin(p) != null ? r2(realMargin(p)) : null, p.price, p.priceAt ? fmtDate(p.priceAt) : '']);
+  exportXlsx('Precios', rows, `precios-${fileSafe(S.settings.store)}-${stamp()}.xlsx`, [12, 40, 16, 22, 12, 12, 10, 16, 16]);
+}
+function exportBatch(id){
+  const b = S.history.find(h => h.id === id); if (!b) return;
+  const rows = [['Código', 'Producto', 'Costo anterior', 'Costo nuevo', 'Precio anterior', 'Precio nuevo', 'Variación %']];
+  for (const ch of b.changes){ const p = byId(ch.id); if (!p) continue; rows.push([p.code || '', p.name, ch.b ? ch.b.cost : null, ch.a.cost, ch.b ? ch.b.price : null, ch.a.price, ch.b && ch.b.price ? r2((ch.a.price / ch.b.price - 1) * 100) : null]); }
+  exportXlsx('Cambios', rows, `cambios-${fileSafe(b.supName)}-${stamp()}.xlsx`, [12, 40, 14, 14, 14, 14, 12]);
+}
+async function makeLabels(ids, size, withStore){
+  try { await loadLib('jspdf'); } catch (e) { toast(e.message); return; }
+  const prods = ids.map(byId).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  if (!prods.length) return;
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({unit: 'mm', format: 'a4'});
+  const L = {s: {cols: 4, rows: 10, price: 22, name: 7.5, foot: 5.5}, m: {cols: 3, rows: 8, price: 30, name: 9, foot: 6.5}, g: {cols: 2, rows: 5, price: 50, name: 13, foot: 8}}[size] || {cols: 3, rows: 8, price: 30, name: 9, foot: 6.5};
+  const mx = 8, my = 8, W = (210 - 2 * mx) / L.cols, H = (297 - 2 * my) / L.rows, pad = 2.6, pt = 0.3528;
+  const date = fmtDate(Date.now());
+  prods.forEach((p, i) => {
+    const k = i % (L.cols * L.rows);
+    if (i && !k) doc.addPage();
+    const x = mx + (k % L.cols) * W, y = my + Math.floor(k / L.cols) * H;
+    doc.setDrawColor(200); doc.setLineDashPattern([1, 1], 0); doc.setLineWidth(0.2); doc.rect(x, y, W, H);
+    doc.setLineDashPattern([], 0);
+    doc.setTextColor(20, 20, 20);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(L.name);
+    const lines = doc.splitTextToSize(p.name, W - 2 * pad).slice(0, 2);
+    doc.text(lines, x + pad, y + pad + L.name * pt);
+    if (unitTxt(p)){ doc.setFont('helvetica', 'normal'); doc.setFontSize(L.name * 0.85); doc.text(unitTxt(p), x + pad, y + pad + L.name * pt * (lines.length + 1) + 0.8); doc.setFont('helvetica', 'bold'); }
+    // precio
+    const txt = priceTxt(p.price);
+    let fs = L.price;
+    doc.setFontSize(fs);
+    while (doc.getTextWidth(txt) + 6 > W - 2 * pad && fs > 10){ fs -= 1; doc.setFontSize(fs); }
+    const py = y + H - pad - L.foot * pt - 1.2;
+    doc.text(txt, x + W - pad, py, {align: 'right'});
+    const tw = doc.getTextWidth(txt);
+    doc.setFontSize(fs * 0.5); doc.text('$', x + W - pad - tw - 1, py - fs * pt * 0.38, {align: 'right'});
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(L.foot); doc.setTextColor(90, 90, 90);
+    doc.text([date, withStore ? S.settings.store : ''].filter(Boolean).join(' · ').slice(0, 60), x + pad, y + H - pad);
+    if (p.code) doc.text(String(p.code).slice(0, 16), x + W - pad, y + H - pad, {align: 'right'});
+  });
+  const blob = doc.output('blob');
+  await saveFile(`etiquetas-${fileSafe(S.settings.store)}-${stamp()}.pdf`, blob);
+}
+
+/* ============ recalcular ============ */
+function recalcAll(){
+  const now = Date.now(); const changes = [];
+  for (const p of S.products){
+    if (!(p.cost > 0) || p.lock) continue;
+    const np = priceFrom(p.cost, p);
+    if (Math.abs(np - p.price) > 0.004){ changes.push({id: p.id, b: {cost: p.cost, price: p.price, updatedAt: p.updatedAt || null, priceAt: p.priceAt || null, supplierId: p.supplierId || null, checkedAt: p.checkedAt || null, hist: (p.hist || []).slice()}, a: {cost: p.cost, price: np}}); p.price = np; p.priceAt = now; pushHist(p, now); }
+  }
+  if (!changes.length) return;
+  const up = changes.filter(c => c.a.price > c.b.price).length;
+  const b = {id: newId(), at: now, supId: null, supName: 'Recálculo con márgenes', source: 'recalculo', file: '', counts: {up, down: changes.length - up, new: 0}, changes, undone: false};
+  S.history.unshift(b); if (S.history.length > 25) S.history.length = 25;
+  save('products', 'history');
+  ui.doneId = b.id; screen('done');
+}
+
+/* ============ toasts ============ */
+function toast(msg, action){
+  const box = $('#toast');
+  const t = document.createElement('div'); t.className = 'toast';
+  t.innerHTML = `<span class="grow">${esc(msg)}</span>${action ? `<button>${esc(action.label)}</button>` : ''}`;
+  if (action) t.querySelector('button').onclick = () => { t.remove(); action.fn(); };
+  box.appendChild(t);
+  setTimeout(() => t.remove(), action ? 7000 : 3800);
+}
+
+/* ============ selección de archivos ============ */
+function pickFile(accept, opts = {}){
+  return new Promise(res => {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = accept; inp.hidden = true;
+    if (opts.capture) inp.setAttribute('capture', 'environment');
+    if (opts.multiple) inp.multiple = true;
+    inp.onchange = () => { res(inp.files ? [...inp.files] : []); inp.remove(); };
+    document.body.appendChild(inp); inp.click();
+  });
+}
+/* ============ datos de ejemplo ============ */
+const DEMO_LIST = `DISTRIBUIDORA DEL SUR
+LISTA DE PRECIOS MAYORISTA - VIGENCIA OCTUBRE
+Precios sin IVA. Condición: contado.
+
+COD    DESCRIPCION                              PRECIO
+1021   YERBA PLAYADITO 1KG                      $ 3.950,00
+1022   YERBA TARAGUI 500GR                      $ 1.890,00
+1040   AZUCAR LEDESMA 1KG                       $ 990,00
+1055   ARROZ GALLO ORO 1KG                      $ 1.600,00
+1060   FIDEOS MATARAZZO SPAGHETTI 500GR         $ 1.310,00
+1061   FIDEOS LUCCHETTI TIRABUZON 500GR         $ 1.050,00
+       ACEITE NATURA GIRASOL 1.5LT              $ 2.890,00
+1090   HARINA PUREZA 0000 1KG                   $ 880,00
+1101   CAFE LA VIRGINIA 500GR                   $ 8.100,00
+1120   GALLETITAS OREO 118GR                    $ 990,00
+       DDL SERENISIMA CLASICO 400G              $ 2.240,00
+1150   PURE DE TOMATE ARCOR 520GR               $ 760,00
+1160   LECHE EN POLVO NIDO 800GR                $ 10.400,00
+1170   TE TARAGUI 25 SAQUITOS                   $ 710,00
+1190   GALLETITAS TERRABUSI VARIEDAD 400GR      $ 1.650,00
+1195   ACEITE DE OLIVA COCINERO 500ML           $ 5.900,00
+1200   YERBA PLAYADITO 500GR                    $ 2.050,00
+1210   ALFAJOR JORGITO CHOCOLATE CAJA X 6       $ 4.200,00
+1220   QUESO CREMOSO LA PAULINA X KG            $ 6.900,00`;
+function seedDemo(){
+  const now = Date.now(), day = 86400000;
+  S.settings = {...DEFAULT_SETTINGS(), store: 'Almacén Don Tito', demo: true, categories: [
+    {name: 'Almacén', margin: null, iva: null}, {name: 'Desayuno', margin: 45, iva: null}, {name: 'Bebidas', margin: 35, iva: null}, {name: 'Limpieza', margin: 38, iva: null}, {name: 'Perfumería', margin: 45, iva: null}]};
+  const sur = {id: 'sup_sur', name: 'Distribuidora del Sur', ivaIncluded: false, discount: 0, lastListAt: now - 41 * day, lists: 3, aiHint: ''};
+  const cen = {id: 'sup_cen', name: 'Mayorista Central', ivaIncluded: true, discount: 5, lastListAt: now - 9 * day, lists: 5, aiHint: ''};
+  S.suppliers = [sur, cen];
+  const P = [
+    [sur, '1021', 'Yerba Playadito 1 kg', 'Desayuno', 3500], [sur, '1022', 'Yerba Taragüí 500 g', 'Desayuno', 1700],
+    [sur, '1040', 'Azúcar Ledesma 1 kg', 'Almacén', 950], [sur, '1055', 'Arroz Gallo Oro 1 kg', 'Almacén', 1600],
+    [sur, '1060', 'Fideos Matarazzo Spaghetti 500 g', 'Almacén', 1200], [sur, '1061', 'Fideos Lucchetti Tirabuzón 500 g', 'Almacén', 980],
+    [sur, '', 'Aceite Natura Girasol 1,5 l', 'Almacén', 3100], [sur, '1090', 'Harina Pureza 0000 1 kg', 'Almacén', 820],
+    [sur, '1101', 'Café La Virginia 500 g', 'Desayuno', 6200], [sur, '1120', 'Galletitas Oreo 118 g', 'Desayuno', 900],
+    [sur, '', 'Dulce de leche La Serenísima 400 g', 'Desayuno', 2100], [sur, '1140', 'Mermelada Arcor Durazno 454 g', 'Desayuno', 1500],
+    [sur, '1150', 'Puré de tomate Arcor 520 g', 'Almacén', 700], [sur, '1160', 'Leche en polvo Nido 800 g', 'Desayuno', 9800],
+    [sur, '1170', 'Té Taragüí 25 saquitos', 'Desayuno', 650],
+    [sur, '1210', 'Alfajor Jorgito chocolate', 'Desayuno', 3800 / 6], [sur, '1220', 'Queso cremoso La Paulina', 'Almacén', 6200],
+    [cen, 'MC204', 'Coca-Cola 2,25 l', 'Bebidas', 3300], [cen, 'MC210', 'Agua Villavicencio 2 l', 'Bebidas', 1250],
+    [cen, 'MC233', 'Fernet Branca 750 ml', 'Bebidas', 11800], [cen, 'MC240', 'Cerveza Quilmes 1 l', 'Bebidas', 2100],
+    [cen, 'MC310', 'Detergente Magistral 500 ml', 'Limpieza', 2350], [cen, 'MC318', 'Lavandina Ayudín 1 l', 'Limpieza', 1100],
+    [cen, 'MC402', 'Papel higiénico Higienol 4 u', 'Limpieza', 2600], [cen, 'MC415', 'Jabón Dove 90 g', 'Perfumería', 1450],
+    [cen, 'MC420', 'Shampoo Sedal 340 ml', 'Perfumería', 3700], [cen, 'MC501', 'Pilas Duracell AA x 2', 'Almacén', 3900]
+  ];
+  S.products = P.map(([s, code, name, cat, lp]) => {
+    const cost = costFromList(lp, s, cat);
+    const p = {id: newId(), code, name, category: cat, supplierId: s.id, cost, price: 0, margin: null, updatedAt: s.lastListAt, priceAt: s.lastListAt, checkedAt: s.lastListAt};
+    p.price = priceFrom(cost, p);
+    // historial: dos listas anteriores con costos algo más bajos
+    p.hist = [[s.lastListAt - 70 * day, r2(cost / 1.11), roundPrice(cost / 1.11 * (1 + marginFor(p) / 100))], [s.lastListAt - 35 * day, r2(cost / 1.05), roundPrice(cost / 1.05 * (1 + marginFor(p) / 100))], [s.lastListAt, cost, p.price]];
+    p.buy = {type: 'u'}; p.sell = 'u';
+    return p;
+  });
+  const alf = S.products.find(p => p.code === '1210'); alf.buy = {type: 'pack', n: 6};
+  const queso = S.products.find(p => p.code === '1220'); queso.buy = {type: 'kg'}; queso.sell = 'kg';
+  const fernet = S.products.find(p => p.code === 'MC233');
+  fernet.cost = r2(fernet.cost * 1.18); fernet.price = roundPrice(fernet.cost * 0.97); fernet.updatedAt = now - 2 * day;
+  S.maps = {}; S.history = [];
+  invalidateIndex();
+  save(...SECTIONS);
+}
+
+/* ============ acciones ============ */
+const A = {
+  tab: el => go(el.dataset.v),
+  home: () => { ui.screen = null; ui.tab = 'home'; ui.sheet = null; render(); window.scrollTo(0, 0); },
+  closeSheet: () => { ui.sheet = null; renderSheet(); },
+  newlist: () => { ui.nl = {supId: S.suppliers.length === 1 ? S.suppliers[0].id : null, photos: [], mode: null, text: ''}; screen('newlist'); },
+  newlistSup: el => { ui.nl = {supId: el.dataset.id, photos: [], mode: null, text: ''}; screen('newlist'); },
+
+  /* onboarding */
+  obMargin: el => { $('#ob-margin').value = el.dataset.v; },
+  obRound: el => { ui.obRound = +el.dataset.v; document.querySelectorAll('#ob-round button').forEach(b => b.classList.toggle('on', b === el)); },
+  obStart: () => {
+    const store = $('#ob-store').value.trim();
+    const margin = parseNum($('#ob-margin').value);
+    if (!store){ $('#ob-store').focus(); toast('Escribí el nombre del comercio.'); return; }
+    if (!(margin >= 0) || margin > 1000){ $('#ob-margin').focus(); toast('Revisá el margen: tiene que ser un número, por ejemplo 40.'); return; }
+    S.settings = {...DEFAULT_SETTINGS(), store, margin, round: ui.obRound ?? 10};
+    save('settings'); ui.tab = 'home'; render();
+  },
+  demo: () => { seedDemo(); ui.tab = 'home'; render(); toast('Cargamos un almacén de ejemplo.'); },
+  wipeDemo: () => { for (const k of SECTIONS){ S[k] = k === 'settings' ? null : k === 'maps' ? {} : []; } invalidateIndex(); save(...SECTIONS); ui.screen = null; render(); },
+  demoList: () => { const sur = supById('sup_sur'); if (!sur) return; ui.nl = {supId: sur.id, photos: [], mode: 'text', text: DEMO_LIST}; runPipeline('text', {text: DEMO_LIST}); },
+
+  /* precios */
+  seeLoss: () => { ui.filter = 'loss'; ui.q = ''; go('prices'); },
+  pfilter: el => { ui.filter = ui.filter === el.dataset.v ? 'all' : el.dataset.v; ui.plimit = 150; render(); },
+  moreP: () => { ui.plimit += 150; $('#plist').innerHTML = priceListHTML(); },
+  product: el => { ui.sheet = {type: 'product', id: el.dataset.id}; renderSheet(); },
+  newProduct: () => { ui.sheet = {type: 'product', id: null}; renderSheet(); setTimeout(() => $('#p-name')?.focus(), 50); },
+  selStart: () => { ui.select = true; ui.selected = new Set(); render(); },
+  selCancel: () => { ui.select = false; ui.selected.clear(); render(); },
+  selAll: () => { for (const p of filteredProducts()) ui.selected.add(p.id); render(); },
+  selToggle: el => { const id = el.dataset.id; ui.selected.has(id) ? ui.selected.delete(id) : ui.selected.add(id); render(); },
+  selToggleRow: el => A.selToggle(el),
+  selLabels: () => { ui.sheet = {type: 'labels', ids: [...ui.selected], size: 'm'}; renderSheet(); },
+  exportPrices: () => exportPrices(),
+  labelsOne: () => { const id = ui.sheet.id; ui.sheet = {type: 'labels', ids: [id], size: 'g'}; renderSheet(); },
+  pSave: () => {
+    const s = ui.sheet; const name = $('#p-name').value.trim();
+    if (!name){ $('#p-name').focus(); toast('Escribí el nombre del producto.'); return; }
+    const cost = parseNum($('#p-cost').value), price = parseNum($('#p-price').value), mg = $('#p-margin').value.trim();
+    const p = s.id ? byId(s.id) : {id: newId(), updatedAt: Date.now()};
+    const oldPrice = p.price;
+    p.name = name; p.code = $('#p-code').value.trim(); p.category = $('#p-cat').value === '__new' ? '' : $('#p-cat').value; p.supplierId = $('#p-sup').value || null;
+    p.margin = mg === '' ? null : parseNum(mg);
+    if (!isFinite(p.margin)) p.margin = null;
+    const bt = $('#p-buy').value, bn = Math.round(parseNum($('#p-bn').value));
+    p.buy = bt === 'pack' ? {type: 'pack', n: bn > 1 ? bn : 1} : {type: bt};
+    p.sell = $('#p-sell').value; p.lock = $('#p-lock').checked;
+    const oldCost = p.cost;
+    p.cost = cost > 0 ? r2(cost) : 0;
+    p.price = price > 0 ? r2(price) : (p.cost ? priceFrom(p.cost, p) : 0);
+    if (p.price !== oldPrice) p.priceAt = Date.now();
+    if (p.price !== oldPrice || p.cost !== oldCost) pushHist(p, Date.now());
+    p.updatedAt = Date.now();
+    if (!s.id) S.products.push(p);
+    invalidateIndex(); save('products');
+    ui.sheet = null; render(); toast(s.id ? 'Producto guardado.' : 'Producto agregado.');
+  },
+  pDel: () => { ui.sheet.del = true; renderSheet(); },
+  pDelNo: () => { ui.sheet.del = false; renderSheet(); },
+  pDelYes: () => { const id = ui.sheet.id; S.products = S.products.filter(p => p.id !== id); for (const m of Object.values(S.maps)) for (const k in m) if (m[k] === id) delete m[k]; invalidateIndex(); save('products', 'maps'); ui.sheet = null; render(); toast('Producto eliminado.'); },
+  catCreate: el => {
+    const sel = document.getElementById(el.dataset.for); const inp = document.getElementById('catnew-' + el.dataset.for);
+    const name = inp.value.trim(); if (!name){ inp.focus(); return; }
+    if (!catOf(name)){ S.settings.categories.push({name, margin: null, iva: null}); save('settings'); }
+    sel.innerHTML = catOptions(name); el.parentElement.remove();
+    if (sel.id === 'rv-cat'){ const it = ui.review.items[ui.sheet.i]; it.newCat = name; }
+  },
+
+  /* importar */
+  importCat: async () => {
+    const [f] = await pickFile('.xlsx,.xls,.csv,.ods,text/csv');
+    if (!f) return;
+    try {
+      const rows = await readSheetRows(f);
+      if (!rows.length) throw new UserErr('La planilla está vacía.');
+      const cols = guessCols(rows, true);
+      if (cols.desc < 0) cols.desc = 0;
+      ui.imp = {rows, cols, fileName: f.name, recalc: false, supId: ''};
+      screen('import');
+    } catch (e) { toast(e instanceof UserErr ? e.message : 'No se pudo abrir ese archivo. Usá un Excel (.xlsx) o CSV.'); }
+  },
+  impBack: () => { ui.imp = null; ui.screen = null; render(); },
+  impGo: () => doImport(),
+
+  /* proveedores */
+  supplier: el => { ui.sheet = {type: 'supplier', id: el.dataset.id}; renderSheet(); },
+  newSupplier: () => { ui.sheet = {type: 'supplier', id: null}; renderSheet(); setTimeout(() => $('#s-name')?.focus(), 50); },
+  sSave: () => {
+    const s = ui.sheet; const name = $('#s-name').value.trim();
+    if (!name){ $('#s-name').focus(); toast('Escribí el nombre del proveedor.'); return; }
+    const x = s.id ? supById(s.id) : {id: newId(), lastListAt: null, lists: 0};
+    x.name = name; x.ivaIncluded = $('#s-iva').checked; const d = parseNum($('#s-disc').value); x.discount = d > 0 && d < 100 ? d : 0; x.aiHint = $('#s-hint').value.trim();
+    if (!s.id) S.suppliers.push(x);
+    save('suppliers'); ui.sheet = null; render(); toast('Proveedor guardado.');
+  },
+  sForget: () => { delete S.maps[ui.sheet.id]; const x = supById(ui.sheet.id); if (x) delete x.cols; save('maps', 'suppliers'); renderSheet(); toast('Vinculaciones olvidadas.'); },
+  sDel: () => { ui.sheet.del = true; renderSheet(); },
+  sDelNo: () => { ui.sheet.del = false; renderSheet(); },
+  sDelYes: () => { const id = ui.sheet.id; S.suppliers = S.suppliers.filter(s => s.id !== id); delete S.maps[id]; for (const p of S.products) if (p.supplierId === id) p.supplierId = null; save('suppliers', 'maps', 'products'); ui.sheet = null; render(); },
+
+  /* ajustes */
+  setRound: el => { S.settings.round = +el.dataset.v; save('settings'); render(); },
+  setEnding: el => { S.settings.ending = el.dataset.v; save('settings'); render(); },
+  setRoundMode: el => { S.settings.roundMode = el.dataset.v; save('settings'); render(); },
+  recalc: () => recalcAll(),
+  addCat: () => { const inp = $('#newcat'); const name = inp.value.trim(); if (!name) { inp.focus(); return; } if (catOf(name)){ toast('Esa categoría ya existe.'); return; } S.settings.categories.push({name, margin: null, iva: null}); save('settings'); render(); },
+  delCat: el => { const c = S.settings.categories[+el.dataset.i]; S.settings.categories.splice(+el.dataset.i, 1); save('settings'); render(); toast(`Quitaste ${c.name}. Sus productos usan el margen general.`); },
+  backup: () => saveFile(`remarca-copia-${stamp()}.json`, new Blob([JSON.stringify({app: 'remarca', v: 1, at: Date.now(), data: S})], {type: 'application/json'})),
+  restore: async () => {
+    const [f] = await pickFile('.json,application/json'); if (!f) return;
+    try {
+      const j = JSON.parse(await f.text());
+      if (j?.app !== 'remarca' || !j.data?.settings) throw 0;
+      for (const k of SECTIONS) S[k] = j.data[k] ?? (k === 'maps' ? {} : []);
+      invalidateIndex(); save(...SECTIONS); render(); toast('Copia restaurada.');
+    } catch { toast('Ese archivo no es una copia de Remarcá.'); }
+  },
+  wipe: () => { ui.wipe = true; render(); },
+  wipeNo: () => { ui.wipe = false; render(); },
+  wipeYes: () => { ui.wipe = false; A.wipeDemo(); toast('Se borraron todos los datos.'); },
+
+  /* nueva lista */
+  nlBack: () => { if (ui.nl?.supId && (ui.nl.photos.length || ui.nl.mode)){ ui.nl.photos = []; ui.nl.mode = null; render(); return; } ui.nl = null; A.home(); },
+  nlSup: el => { ui.nl.supId = el.dataset.id; render(); },
+  nlChangeSup: () => { ui.nl.supId = null; ui.nl.photos = []; render(); },
+  nlNewSup: () => {
+    const name = $('#nl-name').value.trim();
+    if (!name){ $('#nl-name').focus(); toast('Escribí el nombre del proveedor.'); return; }
+    const x = {id: newId(), name, ivaIncluded: $('#nl-iva').checked, discount: 0, lastListAt: null, lists: 0, aiHint: ''};
+    S.suppliers.push(x); save('suppliers'); ui.nl.supId = x.id; render();
+  },
+  nlPhoto: async () => { const fs = await pickFile('image/*', {capture: true}); addPhotos(fs); },
+  nlGallery: async () => { const fs = await pickFile('image/*', {multiple: true}); addPhotos(fs); },
+  nlDelPhoto: el => { const [p] = ui.nl.photos.splice(+el.dataset.i, 1); try { URL.revokeObjectURL(p.url); } catch {} render(); },
+  nlReadPhotos: () => runPipeline('images', {photos: ui.nl.photos}),
+  nlPdf: async () => { const [f] = await pickFile('application/pdf,.pdf'); if (f) runPipeline('pdf', f); },
+  nlSheet: async () => { const [f] = await pickFile('.xlsx,.xls,.csv,.ods,text/csv'); if (f) runPipeline('sheet', f); },
+  nlMode: el => { ui.nl.mode = el.dataset.v || null; render(); if (ui.nl.mode === 'text') setTimeout(() => $('#nl-text')?.focus(), 50); },
+  nlReadText: () => { const t = $('#nl-text').value; ui.nl.text = t; if (!t.trim()){ toast('Pegá el texto de la lista.'); return; } runPipeline('text', {text: t}); },
+  procCancel: () => { ui.proc?.ctl.abort(); ui.proc = null; screen('newlist'); },
+  procBack: () => { if (ui.proc?.needCols) ui.proc.needCols.reject?.(Object.assign(new Error('x'), {code: 'cancelled'})); ui.proc?.ctl.abort(); ui.proc = null; if (ui.nl){ ui.nl.photos = ui.nl.photos || []; } screen('newlist'); },
+  colsOk: () => { const nc = ui.proc.needCols; const cols = {header: nc.cols.header, desc: +$('#c-desc').value, cost: +$('#c-cost').value, code: +$('#c-code').value}; if (cols.desc === cols.cost){ toast('Elegí columnas distintas para descripción y costo.'); return; } nc.resolve(cols); },
+
+  /* revisión */
+  rvBack: () => { ui.review.leave = true; render(); window.scrollTo(0, 0); },
+  rvStay: () => { ui.review.leave = false; render(); },
+  rvDiscard: () => { ui.review = null; ui.nl = null; A.home(); },
+  rvFilter: el => { ui.review.filter = ui.review.filter === el.dataset.v ? null : el.dataset.v; render(); },
+  rvToggle: el => { const it = ui.review.items[+el.dataset.i]; it.include = !it.include; render(); },
+  rvItem: el => { ui.sheet = {type: 'rvItem', i: +el.dataset.i}; renderSheet(); },
+  rvSave: el => {
+    const it = ui.review.items[+el.dataset.i];
+    const v = $('#rv-price').value.trim(); it.override = v === '' ? null : parseNum(v); if (!(it.override > 0)) it.override = null;
+    it.include = $('#rv-inc').checked;
+    const pk = Math.round(parseNum($('#rv-pack').value)); it.pack = pk >= 1 ? pk : null;
+    const cs = $('#rv-cat'); if (cs && cs.value !== '__new') it.newCat = cs.value;
+    ui.sheet = null; render();
+  },
+  rvPick: el => { ui.sheet = {type: 'pick', i: +el.dataset.i, q: ''}; renderSheet(); },
+  pickSet: el => { const it = ui.review.items[ui.sheet.i]; it.productId = el.dataset.id; it.doubt = false; it.ignored = false; it.include = true; it.match = 'manual'; ui.sheet = null; render(); },
+  rvYes: el => { const it = ui.review.items[+el.dataset.i]; it.productId = it.suggest; it.doubt = false; it.include = true; it.match = 'manual'; render(); },
+  rvNew: el => { const it = ui.review.items[+el.dataset.i]; it.productId = null; it.doubt = false; it.include = true; it.match = null; ui.sheet = null; render(); },
+  rvIgnore: el => { const it = ui.review.items[+el.dataset.i]; it.productId = null; it.doubt = false; it.ignored = true; it.include = false; ui.sheet = null; render(); },
+  rvUnignore: el => { const it = ui.review.items[+el.dataset.i]; it.ignored = false; it.include = true; it.match = null; const c = candidates(it.desc, ui.review.supId); it.cands = c.map(x => x.id); if (c[0] && c[0].score >= 0.42){ it.doubt = true; it.suggest = c[0].id; it.include = false; } render(); },
+  rvAllNew: el => { const R = ui.review, sup = supById(R.supId); R.items.forEach(it => { if (calcItem(it, R, sup).st === 'new') it.include = el.dataset.v === '1'; }); render(); },
+  rvMore: el => { ui.review.open[el.dataset.v] = true; render(); },
+  rvIva: el => { ui.review.ivaOverride = el.dataset.v === '1'; render(); },
+  rvIvaKeep: () => { ui.review.meta.iva = null; render(); },
+  rvIvaSave: () => { const sup = supById(ui.review.supId); sup.ivaIncluded = !!ui.review.ivaOverride; save('suppliers'); ui.review.ivaOverride = null; render(); toast(`${sup.name} quedó configurado ${sup.ivaIncluded ? 'con' : 'sin'} IVA.`); },
+  apply: () => applyReview(),
+
+  /* resultados */
+  batch: el => { ui.sheet = {type: 'batch', id: el.dataset.id}; renderSheet(); },
+  labels: el => { const b = S.history.find(h => h.id === el.dataset.id); if (!b) return; ui.sheet = {type: 'labels', ids: b.changes.map(c => c.id).filter(id => byId(id)), size: 'm'}; renderSheet(); },
+  lblSize: el => { ui.sheet.size = el.dataset.v; ui.sheet.store = $('#lbl-store').checked; renderSheet(); },
+  lblGo: async el => { el.disabled = true; el.textContent = 'Generando…'; await makeLabels(ui.sheet.ids, ui.sheet.size, $('#lbl-store')?.checked); if (ui.sheet){ el.disabled = false; el.innerHTML = ic('dl', 20) + 'Descargar PDF'; } },
+  exportBatch: el => exportBatch(el.dataset.id),
+  undo: el => {
+    const id = el.dataset.id;
+    if (lastUndoable()?.id !== id){ toast('Solo se puede deshacer la última lista aplicada.'); return; }
+    undoBatch(id); ui.sheet = null;
+    if (ui.screen === 'done') render(); else render();
+    toast('Listo, los precios volvieron a como estaban.');
+  }
+};
+function addPhotos(files){
+  for (const f of files || []) if (f.type.startsWith('image/') || /\.(jpe?g|png|heic|webp)$/i.test(f.name)) ui.nl.photos.push({file: f, url: URL.createObjectURL(f)});
+  render();
+}
+
+/* entradas que no re-dibujan toda la pantalla */
+const IN = {
+  pCalc: () => {
+    const cost = parseNum($('#p-cost').value), mg = $('#p-margin').value.trim();
+    const cat = $('#p-cat').value;
+    const tmp = {category: cat, margin: mg === '' ? null : parseNum(mg)};
+    if (!ui.sheet.manual && cost > 0) $('#p-price').value = String(priceFrom(cost, tmp)).replace('.', ',');
+    pInfo();
+  },
+  pManual: () => { ui.sheet.manual = true; pInfo(); },
+  pickQ: el => { ui.sheet.q = el.value; $('#pick-list').innerHTML = pickList(ui.sheet); }
+};
+function pInfo(){
+  const cost = parseNum($('#p-cost').value), price = parseNum($('#p-price').value);
+  const el = $('#p-info'); if (!el) return;
+  if (cost > 0 && price > 0){
+    const m = (price / cost - 1) * 100;
+    el.innerHTML = price < cost ? `<b style="color:var(--bad)">Con ese precio perdés ${costTxt(cost - price)} por unidad.</b>` : `Ganancia por unidad: ${costTxt(price - cost)} (${NF1.format(m)} %)`;
+  } else el.textContent = 'Si cargás el costo, el precio se calcula con tu margen.';
+}
+const CH = {
+  catSel: el => { if (el.value === '__new' && !document.getElementById('catnew-' + el.id)){ el.insertAdjacentHTML('afterend', `<div class="row" style="margin-top:6px"><input class="inp grow" id="catnew-${el.id}" placeholder="Nombre de la categoría"><button class="btn sm" data-a="catCreate" data-for="${el.id}">Crear</button></div>`); setTimeout(() => document.getElementById('catnew-' + el.id)?.focus(), 30); } else if (el.id === 'p-cat') IN.pCalc(); },
+  pBuy: () => { const w = $('#p-bn-w'); if (w) w.hidden = $('#p-buy').value !== 'pack'; },
+  rvNewCat: el => { ui.review.newCat = el.value; render(); },
+  impCol: el => { ui.imp.cols[el.dataset.k] = +el.value; render(); },
+  impSup: el => { ui.imp.supId = el.value; },
+  impRecalc: el => { ui.imp.recalc = el.checked; }
+};
+
+/* ============ eventos ============ */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el) return;
+  const fn = A[el.dataset.a]; if (!fn) return;
+  if (el.tagName !== 'INPUT') e.preventDefault();
+  try { fn(el, e); } catch (err) { console.error(err); toast('Algo salió mal. Probá de nuevo.'); }
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.id === 'q'){ ui.q = el.value; ui.plimit = 150; $('#plist').innerHTML = priceListHTML(); return; }
+  if (el.dataset.in && IN[el.dataset.in]) IN[el.dataset.in](el);
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.ch && CH[el.dataset.ch]) return CH[el.dataset.ch](el);
+  if (el.dataset.set){
+    const k = el.dataset.set;
+    if (k === 'store'){ S.settings.store = el.value.trim() || S.settings.store; }
+    else { const v = parseNum(el.value); if (!(v >= 0)){ toast('Escribí un número válido.'); el.value = S.settings[k]; return; } S.settings[k] = v; }
+    save('settings'); if (k !== 'store') render(); toast('Guardado.');
+    return;
+  }
+  if (el.dataset.cat !== undefined){
+    const c = S.settings.categories[+el.dataset.cat]; const v = el.value.trim();
+    c[el.dataset.k] = v === '' ? null : (parseNum(v) >= 0 ? parseNum(v) : null);
+    save('settings'); render(); toast('Guardado.');
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && ui.sheet){ ui.sheet = null; renderSheet(); }
+  if (e.key === 'Enter' && e.target.id === 'nl-name') A.nlNewSup();
+  if (e.key === 'Enter' && e.target.id === 'newcat') A.addCat();
+});
+window.addEventListener('scroll', () => { const t = document.querySelector('.top'); if (t) t.classList.toggle('scrolled', window.scrollY > 4); }, {passive: true});
+
+/* ============ arranque ============ */
+loadLocal();
+if (S.settings) boot.loading = false;
+render();
+initAI().then(() => { if (ui.screen === 'newlist') render(); });
+initCloud().finally(() => { boot.loading = false; if (!ui.sheet && ui.screen !== 'processing' && ui.screen !== 'review') render(); else updateSync(); });
+setTimeout(() => { if (boot.loading){ boot.loading = false; render(); } }, 4000);
+</script>
